@@ -6,14 +6,14 @@
     xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides"
     xsi:type="TaskPaneApp">
 
-    <Id>12345678-1234-1234-1234-123456789012</Id>
+    <Id>E97FE366-4363-43EC-B8DB-1D856699A2D0</Id>
     <Version>1.0.0.0</Version>
     <ProviderName>Nutrient Web SDK</ProviderName>
     <DefaultLocale>en-US</DefaultLocale>
     <DisplayName DefaultValue="Document Converter (Offline)" />
     <Description DefaultValue="Convert Word documents to PDF locally without sending files to external servers." />
-    <IconUrl DefaultValue="https://localhost:3000/assets/icon-32.png" />
-    <HighResolutionIconUrl DefaultValue="https://localhost:3000/assets/icon-64.png" />
+    <IconUrl DefaultValue="http://localhost:3000/assets/icon-32.png" />
+    <HighResolutionIconUrl DefaultValue="http://localhost:3000/assets/icon-64.png" />
     <SupportUrl DefaultValue="https://www.nutrient.io/support" />
 
     <Hosts>
@@ -21,7 +21,7 @@
     </Hosts>
 
     <DefaultSettings>
-        <SourceLocation DefaultValue="https://localhost:3000/word-addin.html" />
+        <SourceLocation DefaultValue="http://localhost:3000/word-addin/word-addin-simple.html" />
     </DefaultSettings>
 
     <Permissions>ReadWriteDocument</Permissions>
@@ -76,7 +76,7 @@
             <bt:Urls>
                 <bt:Url id="GetStarted.LearnMoreUrl" DefaultValue="https://www.nutrient.io/docs" />
                 <bt:Url id="Commands.Url" DefaultValue="https://localhost:3000/commands.html" />
-                <bt:Url id="Taskpane.Url" DefaultValue="https://localhost:3000/word-addin.html" />
+                <bt:Url id="Taskpane.Url" DefaultValue="http://localhost:3000/word-addin/word-addin-simple.html" />
             </bt:Urls>
             <bt:ShortStrings>
                 <bt:String id="GetStarted.Title" DefaultValue="Get started with Document Converter!" />
