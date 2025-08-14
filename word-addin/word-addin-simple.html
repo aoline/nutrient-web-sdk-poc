@@ -17,8 +17,8 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background: #ffffff; /* Clean white background like Nutrient SDK site */
-            color: #1a202c;
+            background: #f8f7f5; /* Light beige background from Nutrient site */
+            color: #000000; /* Black text like their site */
             width: 100%;
             overflow-x: hidden;
         }
@@ -27,19 +27,22 @@
             max-width: 100%;
             margin: 0;
             padding: 0;
-            background: #ffffff;
+            background: #f8f7f5;
             width: 100%;
         }
         
         /* Nutrient Logo Section - matching their header style */
         .nutrient-logo-section {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* Nutrient's gradient */
+            background: #ffffff; /* Pure white like their main content box */
             padding: 24px 20px;
             text-align: center;
             border-bottom: none;
             margin-bottom: 0;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* Subtle shadow like their white box */
+            border-radius: 12px;
+            margin: 20px;
         }
         
         .nutrient-logo-section::before {
@@ -49,8 +52,8 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.1)"/><circle cx="10" cy="60" r="0.5" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="40" r="0.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-            opacity: 0.3;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(230,179,230,0.3)"/><circle cx="75" cy="75" r="1" fill="rgba(230,179,230,0.3)"/><circle cx="50" cy="10" r="0.5" fill="rgba(230,179,230,0.3)"/><circle cx="10" cy="60" r="0.5" fill="rgba(230,179,230,0.3)"/><circle cx="90" cy="40" r="0.5" fill="rgba(230,179,230,0.3)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.6;
         }
         
         .nutrient-logo {
@@ -60,36 +63,32 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(255, 255, 255, 0.95);
+            background: #000000; /* Black background like their logo */
             border-radius: 12px;
-            color: #667eea;
+            color: #ffffff;
             font-weight: 700;
             font-size: 20px;
             text-decoration: none;
             transition: all 0.3s ease;
             position: relative;
             z-index: 1;
-            box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
         }
         
         .nutrient-logo:hover {
             transform: translateY(-2px);
-            box-shadow: 0 12px 40px rgba(102, 126, 234, 0.4);
-            background: rgba(255, 255, 255, 1);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
         }
         
         .nutrient-logo-text {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             font-weight: 700;
             letter-spacing: -0.5px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: #ffffff; /* White text on black background */
         }
         
         .nutrient-tagline {
-            color: rgba(255, 255, 255, 0.9);
+            color: #e6b3e6; /* Light purple/pink like their "SDK PRODUCTS" text */
             font-size: 14px;
             margin: 0;
             font-weight: 500;
@@ -98,14 +97,16 @@
         }
         
         .header {
-            background: #ffffff;
+            background: #ffffff; /* Pure white like their main content box */
             padding: 24px 20px 20px 20px;
-            margin: 0;
-            border-bottom: 1px solid #e2e8f0;
+            margin: 0 20px 20px 20px;
+            border-bottom: none;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
         
         .header h1 {
-            color: #1a202c;
+            color: #000000; /* Black text like their main heading */
             margin: 0;
             font-size: 24px;
             font-weight: 700;
@@ -113,7 +114,7 @@
         }
         
         .header p {
-            color: #4a5568;
+            color: #000000; /* Black text like their body text */
             margin: 8px 0 0 0;
             font-size: 16px;
             font-weight: 400;
@@ -121,38 +122,38 @@
         }
         
         .mode-indicator {
-            background: linear-gradient(135deg, #f7fafc, #edf2f7);
-            border: 1px solid #e2e8f0;
+            background: #ffffff; /* Pure white like their main content box */
+            border: 1px solid #e0e0e0; /* Light gray border like their buttons */
             border-radius: 12px;
             padding: 16px 20px;
             margin: 0 20px 24px 20px;
-            color: #2d3748;
+            color: #000000; /* Black text */
             text-align: center;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
         
         .mode-indicator .icon {
-            color: #667eea;
+            color: #e6b3e6; /* Light purple/pink like their accents */
             margin-right: 8px;
             font-size: 18px;
         }
         
         .mode-indicator strong {
-            color: #1a202c;
+            color: #000000; /* Black text */
             font-weight: 600;
         }
         
         .conversion-panel {
-            background: #ffffff;
+            background: #ffffff; /* Pure white like their main content box */
             border-radius: 12px;
             padding: 24px 20px;
             margin: 0 20px 24px 20px;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e0e0e0; /* Light gray border */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
         
         .conversion-panel h3 {
-            color: #1a202c;
+            color: #000000; /* Black text like their headings */
             margin: 0 0 12px 0;
             font-size: 18px;
             font-weight: 600;
@@ -160,7 +161,7 @@
         }
         
         .conversion-panel p {
-            color: #4a5568;
+            color: #000000; /* Black text like their body text */
             margin: 0 0 20px 0;
             font-size: 15px;
             line-height: 1.6;
@@ -174,7 +175,7 @@
         }
         
         .btn {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: #333333; /* Dark gray/black like their "LAUNCH DEMO" button */
             color: white;
             border: none;
             padding: 14px 24px;
@@ -186,13 +187,14 @@
             text-decoration: none;
             display: inline-block;
             text-align: center;
-            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
             letter-spacing: -0.2px;
         }
         
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            background: #222222;
         }
         
         .btn:active {
@@ -200,48 +202,50 @@
         }
         
         .btn-secondary {
-            background: linear-gradient(135deg, #718096, #4a5568);
-            box-shadow: 0 4px 16px rgba(113, 128, 150, 0.3);
+            background: #d9d9d9; /* Light beige/gray like their "TRY FOR FREE" and "GET STARTED" buttons */
+            color: #000000; /* Black text */
+            box-shadow: 0 4px 16px rgba(217, 217, 217, 0.3);
         }
         
         .btn-secondary:hover {
-            box-shadow: 0 8px 24px rgba(113, 128, 150, 0.4);
+            box-shadow: 0 8px 24px rgba(217, 217, 217, 0.4);
+            background: #e0e0e0;
         }
         
         .status {
-            background: #f7fafc;
-            border: 1px solid #e2e8f0;
+            background: #ffffff; /* Pure white background */
+            border: 1px solid #e0e0e0; /* Light gray border */
             border-radius: 8px;
             padding: 16px 20px;
             margin-bottom: 20px;
-            color: #2d3748;
+            color: #000000; /* Black text */
             font-size: 15px;
             line-height: 1.5;
             font-weight: 400;
         }
         
         .status.info {
-            border-left: 4px solid #667eea;
-            background: #f0f4ff;
+            border-left: 4px solid #e6b3e6; /* Light purple/pink like their accents */
+            background: #faf8ff; /* Very light purple tint */
         }
         
         .status.success {
-            border-left: 4px solid #48bb78;
-            background: #f0fff4;
+            border-left: 4px solid #66b366; /* Green like their "CONTACT SALES" button */
+            background: #f8fff8; /* Very light green tint */
         }
         
         .status.error {
-            border-left: 4px solid #f56565;
-            background: #fff5f5;
+            border-left: 4px solid #ff4d4d; /* Red like their profile icon */
+            background: #fff8f8; /* Very light red tint */
         }
         
         .status.warning {
-            border-left: 4px solid #ed8936;
-            background: #fffbeb;
+            border-left: 4px solid #e6b3e6; /* Light purple/pink like their accents */
+            background: #faf8ff; /* Very light purple tint */
         }
         
         .progress {
-            background: #e2e8f0;
+            background: #e0e0e0; /* Light gray like their borders */
             border-radius: 6px;
             height: 8px;
             margin: 20px 0;
@@ -249,14 +253,14 @@
         }
         
         .progress-bar {
-            background: linear-gradient(90deg, #667eea, #764ba2);
+            background: #e6b3e6; /* Light purple/pink like their accents */
             height: 100%;
             width: 0%;
             transition: width 0.3s ease;
         }
         
         .pdf-viewer-section {
-            background: #ffffff;
+            background: #ffffff; /* Pure white like their main content box */
             border-radius: 0;
             padding: 0;
             margin: 0;
@@ -265,13 +269,13 @@
         }
         
         .pdf-viewer-section h3 {
-            color: #1a202c;
+            color: #000000; /* Black text like their headings */
             margin: 0 0 0 0;
             font-size: 18px;
             font-weight: 600;
             padding: 20px 20px 16px 20px;
-            background: #f7fafc;
-            border-bottom: 1px solid #e2e8f0;
+            background: #f8f7f5; /* Light beige like their page background */
+            border-bottom: 1px solid #e0e0e0; /* Light gray border */
             letter-spacing: -0.3px;
         }
         
@@ -291,7 +295,7 @@
             overflow: hidden;
             margin: 0;
             padding: 0;
-            background: #f7fafc;
+            background: #f8f7f5; /* Light beige like their page background */
             display: block;
             box-sizing: border-box;
         }
@@ -299,21 +303,21 @@
         .pdf-actions {
             text-align: center;
             padding: 20px;
-            background: #f7fafc;
-            border-top: 1px solid #e2e8f0;
+            background: #f8f7f5; /* Light beige like their page background */
+            border-top: 1px solid #e0e0e0; /* Light gray border */
         }
         
         .features {
-            background: #ffffff;
+            background: #ffffff; /* Pure white like their main content box */
             border-radius: 12px;
             padding: 24px 20px;
             margin: 0 20px 24px 20px;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e0e0e0; /* Light gray border */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
         
         .features h3 {
-            color: #1a202c;
+            color: #000000; /* Black text like their headings */
             margin: 0 0 20px 0;
             font-size: 18px;
             font-weight: 600;
@@ -327,9 +331,9 @@
         }
         
         .feature-list li {
-            color: #4a5568;
+            color: #000000; /* Black text like their body text */
             padding: 12px 0;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e0e0e0; /* Light gray border */
             font-size: 15px;
             display: flex;
             align-items: center;
@@ -343,7 +347,7 @@
         .feature-list .icon {
             margin-right: 12px;
             font-size: 18px;
-            color: #48bb78;
+            color: #66b366; /* Green like their "CONTACT SALES" button */
         }
         
         /* Scrollbar styling - matching Nutrient's clean aesthetic */
@@ -352,16 +356,16 @@
         }
         
         ::-webkit-scrollbar-track {
-            background: #f7fafc;
+            background: #f8f7f5; /* Light beige like their page background */
         }
         
         ::-webkit-scrollbar-thumb {
-            background: #cbd5e0;
+            background: #e0e0e0; /* Light gray like their borders */
             border-radius: 3px;
         }
         
         ::-webkit-scrollbar-thumb:hover {
-            background: #a0aec0;
+            background: #d9d9d9; /* Slightly darker gray */
         }
         
         /* Responsive design improvements */
@@ -383,6 +387,14 @@
             .mode-indicator {
                 margin: 0 16px 20px 16px;
                 padding: 16px;
+            }
+            
+            .nutrient-logo-section {
+                margin: 16px;
+            }
+            
+            .header {
+                margin: 0 16px 20px 16px;
             }
         }
     </style>
