@@ -743,6 +743,13 @@
                 // Try the direct URL approach first (simplest and most reliable)
                 console.log('🔄 Attempting to load sample.pdf directly with URL...');
                 
+                // Clean approach: Unload existing viewer if any, then load fresh
+                if (window.currentNutrientViewer) {
+                    console.log('🔄 Unloading existing viewer...');
+                    await window.currentNutrientViewer.unload();
+                    console.log('✅ Existing viewer unloaded');
+                }
+                
                 try {
                     const viewer = await NutrientViewer.load({
                         container: '#pdfViewer',
@@ -1370,66 +1377,32 @@
             }
         }
         
-        // Helper function to switch viewer documents properly
+        // Clean approach: Use viewer.unload() then viewer.load()
         async function switchViewerDocument(documentData, documentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', documentName = 'document.docx') {
             try {
-                // Check if we have an existing viewer and unload it first
-                if (window.currentNutrientViewer) {
-                    console.log('🔄 Unloading existing viewer...');
-                    try {
-                        await cleanupViewerAndBlobs();
-                        console.log('✅ Existing viewer and blobs cleaned up successfully');
-                    } catch (unloadError) {
-                        console.warn('⚠️ Error during cleanup:', unloadError.message);
-                    }
-                }
-                
-                // Load the new document into the viewer
                 console.log(`📄 Loading ${documentType} into viewer, size:`, documentData.byteLength, 'bytes');
                 console.log('🔍 Document data type:', typeof documentData, 'constructor:', documentData.constructor.name);
-                console.log('🔍 Document data is ArrayBuffer:', documentData instanceof ArrayBuffer);
-                console.log('🔍 Document data is Uint8Array:', documentData instanceof Uint8Array);
                 
-                // Try different approaches for loading the document
                 let viewer;
                 
-                // Approach 1: Try with ArrayBuffer directly
-                try {
-                    console.log('🔄 Attempting to load with ArrayBuffer...');
-                    viewer = await NutrientViewer.load({
-                        container: '#pdfViewer',
-                        baseUrl: 'http://localhost:3000/assets/',
-                        document: {
-                            type: documentType,
-                            data: documentData,
-                            name: documentName
-                        }
-                    });
-                    console.log('✅ Successfully loaded with ArrayBuffer approach');
-                } catch (arrayBufferError) {
-                    console.warn('⚠️ ArrayBuffer approach failed, trying Blob URL approach:', arrayBufferError.message);
-                    
-                    // Approach 2: Try with Blob URL
-                    try {
-                        console.log('🔄 Attempting to load with Blob URL...');
-                        const blob = new Blob([documentData], { type: documentType });
-                        const blobUrl = URL.createObjectURL(blob);
-                        console.log('🔗 Created Blob URL:', blobUrl);
-                        
-                        viewer = await NutrientViewer.load({
-                            container: '#pdfViewer',
-                            baseUrl: 'http://localhost:3000/assets/',
-                            document: blobUrl
-                        });
-                        console.log('✅ Successfully loaded with Blob URL approach');
-                        
-                        // Store blob URL for cleanup
-                        window.currentBlobUrl = blobUrl;
-                    } catch (blobUrlError) {
-                        console.error('❌ Both approaches failed:', blobUrlError.message);
-                        throw new Error(`Failed to load document: ArrayBuffer approach failed with "${arrayBufferError.message}", Blob URL approach failed with "${blobUrlError.message}"`);
-                    }
+                // If we have an existing viewer, unload it first
+                if (window.currentNutrientViewer) {
+                    console.log('🔄 Unloading existing viewer...');
+                    await window.currentNutrientViewer.unload();
+                    console.log('✅ Existing viewer unloaded');
                 }
+                
+                // Create new viewer with the document
+                console.log('🔄 Creating new viewer with document...');
+                viewer = await NutrientViewer.load({
+                    container: '#pdfViewer',
+                    baseUrl: 'http://localhost:3000/assets/',
+                    document: {
+                        type: documentType,
+                        data: documentData,
+                        name: documentName
+                    }
+                });
                 
                 // Store the viewer instance
                 window.currentNutrientViewer = viewer;
