@@ -856,27 +856,23 @@
                 updateStatus('Converting document to PDF...', 'info');
                 showProgress(true);
                 
-                // Get the current document content
-                const documentContent = await getDocumentContent();
-                console.log('Retrieved document content:', documentContent.length, 'characters');
+                // Check if we already have actual DOCX data from "Get Actual DOCX"
+                if (window.actualDocxData && window.actualDocxData.byteLength > 0) {
+                    console.log('🎯 Using actual DOCX data for conversion!');
+                    updateStatus('🎯 Using your actual Word document for conversion...', 'info');
+                    
+                    // Use the actual DOCX data we already retrieved
+                    const docxData = window.actualDocxData;
+                    console.log('✅ Using retrieved DOCX, size:', docxData.byteLength, 'bytes');
+                    
+                    // Convert the actual DOCX to PDF using the SDK
+                    await convertActualDocxToPDF();
+                    return;
+                }
                 
-                // Convert to PDF using Nutrient Web SDK
-                const pdfData = await convertToPDF(documentContent);
-                
-                convertedPDF = pdfData;
-                currentDocument = documentContent;
-                
-                // Show PDF viewer section first
-                document.getElementById('pdfViewerSection').style.display = 'block';
-                document.getElementById('downloadPdfBtn').style.display = 'block';
-                
-                // Wait a moment for the section to be visible
-                await new Promise(resolve => setTimeout(resolve, 100));
-                
-                // Display PDF immediately in the viewer
-                await displayPDFInViewer(pdfData);
-                
-                updateStatus('✅ Document converted and displayed successfully!', 'success');
+                // No actual DOCX data available - fail clearly
+                console.log('❌ No actual DOCX data available for conversion');
+                updateStatus('❌ No actual DOCX available. Please click "📄 Get Actual DOCX" first to retrieve your Word document.', 'error');
                 showProgress(false);
                 
             } catch (error) {
@@ -886,7 +882,244 @@
             }
         }
         
-
+        // Convert actual DOCX to PDF using the SDK
+        async function convertActualDocxToPDF() {
+            try {
+                if (!window.actualDocxData || window.actualDocxData.byteLength === 0) {
+                    throw new Error('No actual DOCX data available');
+                }
+                
+                console.log('🔄 Converting actual DOCX to PDF...');
+                updateStatus('🔄 Converting your actual Word document to PDF...', 'info');
+                
+                // Show the PDF viewer section
+                document.getElementById('pdfViewerSection').style.display = 'block';
+                document.getElementById('downloadPdfBtn').style.display = 'none';
+                
+                // Wait for the section to be visible
+                await new Promise(resolve => setTimeout(resolve, 200));
+                
+                // Simple approach: just use the clean div
+                const viewerContainer = document.getElementById('pdfViewer');
+                
+                // Load the actual DOCX into the viewer
+                console.log('📄 Loading actual DOCX into viewer, size:', window.actualDocxData.byteLength, 'bytes');
+                const viewer = await NutrientViewer.load({
+                    container: '#pdfViewer',
+                    baseUrl: 'http://localhost:3000/assets/',
+                    document: window.actualDocxData
+                });
+                
+                // Store the viewer instance
+                window.currentNutrientViewer = viewer;
+                
+                console.log('✅ Actual DOCX loaded in viewer, now exporting to PDF...');
+                
+                // Export to PDF
+                const pdfArrayBuffer = await viewer.exportPDF();
+                console.log('✅ PDF export completed, size:', pdfArrayBuffer.byteLength, 'bytes');
+                
+                // Store the converted PDF
+                window.convertedPDF = pdfArrayBuffer;
+                
+                // Show download button
+                document.getElementById('downloadPdfBtn').style.display = 'block';
+                
+                updateStatus('✅ Your Word document converted to PDF successfully!', 'success');
+                showProgress(false);
+                
+                return pdfArrayBuffer;
+                
+            } catch (error) {
+                console.error('❌ Failed to convert actual DOCX to PDF:', error);
+                updateStatus('❌ DOCX to PDF conversion failed: ' + error.message, 'error');
+                showProgress(false);
+                throw error;
+            }
+        }
+        
+        // Get the actual Word document as DOCX file
+        async function getActualWordDocument() {
+            try {
+                updateStatus('Getting actual Word document as DOCX...', 'info');
+                
+                if (typeof Office === 'undefined' || !Office.context || !Office.context.document) {
+                    throw new Error('Office.js not ready or no document context');
+                }
+                
+                console.log('🔍 Attempting to get actual Word document...');
+                
+                // Try to get the document as compressed file (DOCX)
+                console.log('🔄 Trying getFileAsync with different options...');
+                
+                try {
+                    const docxData = await new Promise((resolve, reject) => {
+                        Office.context.document.getFileAsync(Office.FileType.Compressed, {
+                            sliceSize: 1024 * 1024, // 1MB slices
+                            maxSliceCount: 5
+                        }, (result) => {
+                            if (result.status === Office.AsyncResultStatus.Succeeded) {
+                                const file = result.value;
+                                console.log('✅ getFileAsync succeeded! Slices:', file.sliceCount);
+                                
+                                // Get all slices
+                                const allSlices = [];
+                                let currentSlice = 0;
+                                
+                                function getSlice() {
+                                    if (currentSlice >= file.sliceCount) {
+                                        // All slices collected
+                                        file.closeAsync(() => {
+                                            const totalSize = allSlices.reduce((sum, slice) => sum + slice.length, 0);
+                                            const combined = new Uint8Array(totalSize);
+                                            let offset = 0;
+                                            for (const slice of allSlices) {
+                                                combined.set(slice, offset);
+                                                offset += slice.length;
+                                            }
+                                            resolve(combined.buffer);
+                                        });
+                                        return;
+                                    }
+                                    
+                                    file.getSliceAsync(currentSlice, (slice) => {
+                                        if (slice.status === Office.AsyncResultStatus.Succeeded) {
+                                            const base64Data = slice.value.data;
+                                            const byteArray = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
+                                            allSlices.push(byteArray);
+                                            currentSlice++;
+                                            getSlice();
+                                        } else {
+                                            reject(new Error(`Slice ${currentSlice} failed: ${slice.status}`));
+                                        }
+                                    });
+                                }
+                                
+                                getSlice();
+                            } else {
+                                reject(new Error(`getFileAsync failed: ${result.status}`));
+                            }
+                        });
+                    });
+                    
+                    console.log('✅ Got actual DOCX data, size:', docxData.byteLength, 'bytes');
+                    
+                    // Download the DOCX file
+                    const blob = new Blob([docxData], { 
+                        type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' 
+                    });
+                    const url = URL.createObjectURL(blob);
+                    
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'actual-word-document.docx';
+                    a.style.display = 'none';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    
+                    updateStatus('✅ Actual Word document downloaded as DOCX!', 'success');
+                    
+                    // Store for potential use with SDK
+                    window.actualDocxData = docxData;
+                    
+                    // Now load the actual DOCX into the viewer
+                    console.log('🔄 Loading actual DOCX into Nutrient Web SDK viewer...');
+                    updateStatus('🔄 Loading your actual Word document into the viewer...', 'info');
+                    
+                    try {
+                        // Show the PDF viewer section
+                        document.getElementById('pdfViewerSection').style.display = 'block';
+                        document.getElementById('downloadPdfBtn').style.display = 'none';
+                        
+                        // Wait for the section to be visible
+                        await new Promise(resolve => setTimeout(resolve, 200));
+                        
+                        // Debug: Check container state
+                        const viewerContainer = document.getElementById('pdfViewer');
+                        console.log('🔍 Viewer container state:', {
+                            id: viewerContainer.id,
+                            dimensions: `${viewerContainer.offsetWidth}x${viewerContainer.offsetHeight}`,
+                            visible: viewerContainer.style.display !== 'none',
+                            parentVisible: viewerContainer.parentElement.style.display !== 'none'
+                        });
+                        
+                        // Simple approach: just use the clean div
+                        viewerContainer.innerHTML = '';
+                        viewerContainer.id = 'pdfViewer';
+                        
+                        // Load the actual DOCX into the viewer
+                        console.log('📄 Loading DOCX data into viewer, size:', docxData.byteLength, 'bytes');
+                        const viewer = await NutrientViewer.load({
+                            container: '#pdfViewer',
+                            baseUrl: 'http://localhost:3000/assets/',
+                            document: docxData
+                        });
+                        
+                        // Store the viewer instance
+                        window.currentNutrientViewer = viewer;
+                        
+                        console.log('✅ Actual Word document loaded successfully in viewer!');
+                        updateStatus('✅ Your actual Word document is now displayed in the viewer!', 'success');
+                        
+                        // Add a button to convert this DOCX to PDF
+                        const convertButton = document.createElement('button');
+                        convertButton.className = 'btn';
+                        convertButton.style.marginTop = '10px';
+                        convertButton.onclick = () => convertActualDocxToPDF();
+                        convertButton.textContent = '🔄 Convert This DOCX to PDF';
+                        
+                        document.querySelector('.pdf-actions').appendChild(convertButton);
+                        
+                    } catch (viewerError) {
+                        console.error('❌ Failed to load DOCX in viewer:', viewerError);
+                        updateStatus('❌ Failed to load document in viewer: ' + viewerError.message, 'error');
+                        
+                        // Show detailed error information
+                        const errorDiv = document.createElement('div');
+                        errorDiv.style.cssText = 'background: #ffebee; border: 1px solid #f44336; border-radius: 4px; padding: 15px; margin: 15px 0; color: #c62828;';
+                        errorDiv.innerHTML = `
+                            <h4>❌ Viewer Loading Failed</h4>
+                            <p><strong>Error:</strong> ${viewerError.message}</p>
+                            <p><strong>Type:</strong> ${viewerError.constructor.name}</p>
+                            <details style="margin-top: 10px;">
+                                <summary>Full Error Details</summary>
+                                <pre style="background: #f5f5f5; padding: 10px; border-radius: 4px; overflow-x: auto;">${viewerError.stack || 'No stack trace available'}</pre>
+                            </details>
+                        `;
+                        
+                        document.getElementById('status').appendChild(errorDiv);
+                    }
+                    
+                    return docxData;
+                    
+                } catch (getFileError) {
+                    console.warn('⚠️ getFileAsync failed:', getFileError);
+                    
+                    // If getFileAsync fails, show clear error - no fallbacks
+                    console.log('❌ Cannot get actual DOCX file');
+                    updateStatus('❌ Cannot retrieve actual DOCX file: ' + getFileError.message, 'error');
+                    
+                    // Show what we can access for debugging
+                    const infoDiv = document.createElement('div');
+                    infoDiv.style.cssText = 'background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 20px; margin: 15px 0; color: #856404;';
+                    infoDiv.innerHTML = `
+                        <h4>⚠️ DOCX Access Failed</h4>
+                        <p><strong>Error:</strong> ${getFileError.message}</p>
+                        <p><strong>Document URL:</strong> ${Office.context.document.url || 'Not available'}</p>
+                        <p><strong>Document Title:</strong> ${Office.context.document.title || 'Untitled'}</p>
+                        <p><strong>Note:</strong> The "Convert to PDF" button requires actual DOCX data. Try saving your document or ensuring it's not in Protected View.</p>
+                    `;
+                    
+                    document.getElementById('status').appendChild(infoDiv);
+                }
+                
+            } catch (error) {
+                console.error('❌ Failed to get actual Word document:', error);
+                updateStatus('❌ Failed to get actual Word document: ' + error.message, 'error');
+            }
+        }
         
         // Get document content from Word
         function getDocumentContent() {
