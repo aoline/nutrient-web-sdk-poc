@@ -1231,75 +1231,42 @@
             }
         }
         
-        // Production-grade DOCX retrieval with both Office.js and Graph fallback
+        // Production-grade DOCX retrieval with Office.js getFileAsync
         async function getCurrentDocxReliable(options = {}) {
             const {
-                maxRetries = 2,
+                maxRetries = 3,
                 sliceSize = 4 * 1024 * 1024, // 4 MB
-                timeoutMs = 30_000,          // 30 seconds
-                allowGraphFallback = true
+                timeoutMs = 15_000,          // 15 seconds
             } = options;
 
             console.log('🚀 Starting production-grade DOCX retrieval...');
 
-            // 1) Try Office getFileAsync (desktop + online)
+            // Try Office getFileAsync with retries and timeout
             try {
                 return await getDocxViaGetFileAsync({ maxRetries, sliceSize, timeoutMs });
-            } catch (e1) {
-                console.warn('[getFileAsync] failed:', e1?.message || e1);
-                
-                // 2) If the doc lives in SharePoint/OneDrive, fall back to Graph
-                if (!allowGraphFallback) {
-                    console.log('Graph fallback disabled, throwing original error');
-                    throw e1;
-                }
-
-                try {
-                    const url = await getDocumentUrl();
-                    if (!url) {
-                        console.log('No document URL available for Graph fallback');
-                        throw new Error('No document URL available for Graph fallback');
-                    }
-                    if (!isCloudUrl(url)) {
-                        console.log('Document is not a cloud document, Graph fallback won\'t help');
-                        throw e1; // local doc → Graph won't help
-                    }
-
-                    console.log('🔄 Trying Microsoft Graph fallback for cloud document...');
-                    return await getDocxViaGraph(url, { timeoutMs });
-                } catch (e2) {
-                    console.warn('[Graph fallback] failed:', e2?.message || e2);
-                    
-                    // If OfficeRuntime is not available, provide a helpful message
-                    if (e2.message.includes('OfficeRuntime not available')) {
-                        console.log('OfficeRuntime not available - this is normal for some environments');
-                        throw new Error(`getFileAsync failed and Graph fallback is not available in this environment. Error: ${e1?.message || e1}`);
-                    }
-                    
-                    // Preserve the original getFileAsync error context
-                    const err = new Error(`Failed to get current Word document (getFileAsync + Graph). Root: ${e1?.message || e1}`);
-                    err.cause = { getFileAsync: e1, graph: e2 };
-                    throw err;
-                }
+            } catch (error) {
+                console.warn('[getFileAsync] failed:', error?.message || error);
+                throw new Error(`Failed to get current Word document: ${error.message}`);
             }
         }
 
-        // Path A: Office.getFileAsync
+        // Path A: Office.getFileAsync with proper Word API saving
         async function getDocxViaGetFileAsync({ maxRetries, sliceSize, timeoutMs }) {
-            // Save first (reduces "internal error/5001" and timeouts)
-            await trySave();
+            // Save first using Word API (reduces "internal error/5001" and timeouts)
+            await trySaveWithWordAPI();
 
             // Serialize calls: don't run two exports at once
             await gateGetFileAsync();
 
             let attempt = 0;
-            while (true) {
+            while (attempt < maxRetries) {
                 try {
                     return await withTimeout(_getDocxOnce(sliceSize), timeoutMs, 'getFileAsync timeout');
                 } catch (e) {
-                    if (attempt++ >= maxRetries) throw e;
+                    attempt++;
+                    if (attempt >= maxRetries) throw e;
                     console.log(`🔄 Retry attempt ${attempt} after failure:`, e.message);
-                    await delay(600 * attempt); // simple backoff
+                    await delay(1000 * attempt); // exponential backoff
                 }
             }
         }
@@ -1348,35 +1315,21 @@
             });
         }
 
-        // Path B: Microsoft Graph fallback
-        async function getDocxViaGraph(documentUrl, { timeoutMs }) {
-            // Check if OfficeRuntime is available
-            if (typeof OfficeRuntime === 'undefined' || !OfficeRuntime.auth) {
-                throw new Error('OfficeRuntime not available - Graph fallback disabled');
-            }
-            
-            // Requires SSO configured for your add-in
-            const token = await OfficeRuntime.auth.getAccessToken({ allowSignInPrompt: true });
 
-            // SharePoint/OneDrive "shares" API accepts a base64url-encoded URL
-            const shareId = 'u!' + toBase64Url(documentUrl);
-
-            const res = await withTimeout(fetch(
-                `https://graph.microsoft.com/v1.0/shares/${shareId}/driveItem/content`,
-                { headers: { Authorization: `Bearer ${token}` } }
-            ), timeoutMs, 'Graph download timeout');
-
-            if (!res.ok) throw new Error(`Graph download failed ${res.status} ${res.statusText}`);
-            const ab = await res.arrayBuffer();
-            return new Uint8Array(ab);
-        }
 
         // Helper functions
-        async function trySave() {
-            console.log('💾 Attempting to save document first...');
-            await new Promise((resolve) => {
-                Office.context.document.saveAsync(() => resolve()); // don't hard-fail; saving helps host state
-            });
+        async function trySaveWithWordAPI() {
+            console.log('💾 Attempting to save document first using Word API...');
+            try {
+                await Word.run(async (ctx) => {
+                    ctx.document.save();
+                    await ctx.sync();
+                });
+                console.log('✅ Document saved successfully using Word API');
+            } catch (error) {
+                console.warn('⚠️ Word API save failed, continuing anyway:', error.message);
+                // Don't fail the entire operation if save fails
+            }
         }
 
         let _gating = Promise.resolve();
@@ -1406,25 +1359,7 @@
             }
         }
 
-        async function getDocumentUrl() {
-            return new Promise((resolve) => {
-                Office.context.document.getFilePropertiesAsync((r) => {
-                    if (r.status === Office.AsyncResultStatus.Succeeded) {
-                        resolve(r.value?.url || Office.context.document.url || '');
-                    } else {
-                        resolve(Office.context.document.url || '');
-                    }
-                });
-            });
-        }
 
-        function isCloudUrl(u = '') {
-            return /sharepoint\.com|\.sharepoint\.|d\.docs\.live\.net/i.test(u);
-        }
-
-        function toBase64Url(str) {
-            return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
-        }
         
         // Get document content from Word
         function getDocumentContent() {
