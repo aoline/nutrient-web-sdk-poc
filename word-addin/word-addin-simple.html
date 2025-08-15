@@ -56,7 +56,6 @@
         }
         
         .nutrient-logo {
-            width: 140px;
             height: 70px;
             margin: 0 auto 12px auto;
             display: flex;
@@ -68,13 +67,11 @@
         }
         
         .nutrient-logo:hover {
-            transform: translateY(-2px);
         }
         
 
         
         .nutrient-tagline {
-            color: #e6b3e6; /* Light purple/pink like their "SDK PRODUCTS" text */
             font-size: 14px;
             margin: 0;
             font-weight: 500;
@@ -231,18 +228,138 @@
         }
         
         .progress {
-            background: #e0e0e0; /* Light gray like their borders */
-            border-radius: 6px;
+            width: 100%;
             height: 8px;
-            margin: 20px 0;
+            background: #f0f0f0;
+            border-radius: 4px;
             overflow: hidden;
+            margin: 15px 0;
+            position: relative;
         }
         
         .progress-bar {
-            background: #e6b3e6; /* Light purple/pink like their accents */
             height: 100%;
-            width: 0%;
-            transition: width 0.3s ease;
+            background: linear-gradient(90deg, #e6b3e6, #d4a5d4, #c297c2, #e6b3e6);
+            background-size: 200% 100%;
+            border-radius: 4px;
+            animation: progressShimmer 2s ease-in-out infinite;
+            position: relative;
+        }
+        
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: progressGlow 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes progressShimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        @keyframes progressGlow {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+        
+        .status.info {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            color: #1976d2;
+            animation: statusPulse 2s ease-in-out infinite;
+        }
+        
+        .status.warning {
+            background: #fff3e0;
+            border: 1px solid #ff9800;
+            color: #f57c00;
+            animation: statusPulse 2s ease-in-out infinite;
+        }
+        
+        .status.error {
+            background: #ffebee;
+            border: 1px solid #f44336;
+            color: #c62828;
+            animation: statusShake 0.5s ease-in-out infinite;
+        }
+        
+        .status.success {
+            background: #e8f5e8;
+            border: 1px solid #4caf50;
+            color: #2e7d32;
+            animation: statusSuccess 0.6s ease-out;
+        }
+        
+        @keyframes statusPulse {
+            0%, 100% { 
+                box-shadow: 0 0 0 0 rgba(33, 150, 243, 0.4);
+                transform: scale(1);
+            }
+            50% { 
+                box-shadow: 0 0 0 10px rgba(33, 150, 243, 0);
+                transform: scale(1.02);
+            }
+        }
+        
+        @keyframes statusShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-2px); }
+            75% { transform: translateX(2px); }
+        }
+        
+        @keyframes statusSuccess {
+            0% { 
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            50% { 
+                transform: scale(1.1);
+            }
+            100% { 
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        /* Loading spinner for long operations */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #e6b3e6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Animated dots for processing */
+        .processing-dots {
+            display: inline-block;
+            margin-left: 5px;
+        }
+        
+        .processing-dots::after {
+            content: '';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+        
+        @keyframes dots {
+            0%, 20% { content: ''; }
+            40% { content: '.'; }
+            60% { content: '..'; }
+            80%, 100% { content: '...'; }
         }
         
         .pdf-viewer-section {
@@ -288,7 +405,7 @@
         
         .pdf-actions {
             text-align: center;
-            padding: 20px;
+            padding: 0px;
             background: #f8f7f5; /* Light beige like their page background */
             border-top: 1px solid #e0e0e0; /* Light gray border */
         }
@@ -388,7 +505,7 @@
 <body>
     <div class="container">
         <div class="nutrient-logo-section">
-                         <a href="https://nutrient.ai" target="_blank" rel="noopener" class="nutrient-logo">
+                         <a href="https://nutrient.io" target="_blank" rel="noopener" class="nutrient-logo">
                             <svg width="100%" height="36" viewBox="0 0 208 36" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M4.1524 22.1521C1.8582 22.1521 0 20.2939 0 17.9997C0 15.7055 1.8582 13.8473 4.1524 13.8473C6.44659 13.8473 8.30479 15.7055 8.30479 17.9997C8.30479 20.2939 6.44659 22.1521 4.1524 22.1521ZM45.6763 13.8473C43.3821 13.8473 41.524 15.7055 41.524 17.9997C41.524 20.2939 43.3821 22.1521 45.6763 22.1521C47.9705 22.1521 49.8287 20.2939 49.8287 17.9997C49.8287 15.7055 47.9705 13.8473 45.6763 13.8473ZM6.34071 28.1647C4.58424 29.6388 4.35379 32.259 5.82789 34.0154C7.30199 35.7719 9.92215 36.0024 11.6786 34.5283C13.4351 33.0542 13.6655 30.434 12.1914 28.6775C10.7173 26.9211 8.09717 26.6906 6.34071 28.1647ZM43.488 7.8346C45.2445 6.3605 45.475 3.74033 44.0009 1.98387C42.5268 0.227407 39.9066 -0.0030509 38.1501 1.47105C36.3937 2.94515 36.1632 5.56531 37.6373 7.32177C39.1114 9.07824 41.7316 9.3087 43.488 7.8346ZM11.6786 1.47313C9.92215 -0.000974749 7.30199 0.227407 5.82789 1.98595C4.35379 3.74449 4.58217 6.36257 6.34071 7.83667C8.09925 9.31077 10.7173 9.08239 12.1914 7.32385C13.6655 5.56531 13.4372 2.94723 11.6786 1.47313ZM43.488 28.1647C41.7316 26.6906 39.1114 26.919 37.6373 28.6775C36.1632 30.434 36.3916 33.0542 38.1501 34.5283C39.9066 36.0024 42.5268 35.774 44.0009 34.0154C45.475 32.259 45.2466 29.6388 43.488 28.1647ZM32.8849 19.2661C31.1284 17.792 28.5083 18.0204 27.0342 19.779C25.5601 21.5375 25.7884 24.1556 27.547 25.6297C29.3055 27.1038 31.9236 26.8754 33.3977 25.1169C34.8718 23.3583 34.6434 20.7402 32.8849 19.2661ZM22.2818 10.3696C20.5253 8.89553 17.9051 9.12391 16.431 10.8825C14.9569 12.641 15.1853 15.2591 16.9438 16.7332C18.7024 18.2073 21.3205 17.9789 22.7946 16.2204C24.2687 14.4618 24.0403 11.8437 22.2818 10.3696Z" fill="#1A1414"></path>
                                 <path d="M83.2482 4.00294H86.8124V32.0934H82.7174L73.1011 15.2088C72.579 14.2696 71.494 12.1667 69.849 8.90002H69.8111C69.8636 10.1017 69.9103 11.4113 69.9482 12.8288C69.9861 14.2463 70.0065 15.3079 70.0065 16.0109V32.0934H66.4424V4.00294H70.4382L80.0749 20.6921C80.559 21.5292 81.434 23.1654 82.6999 25.6096L83.4057 26.96H83.4436C83.3911 25.8896 83.3445 24.6559 83.3065 23.2588C83.2686 21.8617 83.2482 20.7388 83.2482 19.89V4.00294ZM104.254 23.2996C104.254 27.4792 102.53 29.5675 99.0828 29.5675C98.3128 29.5675 97.639 29.4975 97.0645 29.3604C96.4899 29.2234 95.9474 28.9054 95.4399 28.4096C95.0607 28.045 94.7865 27.6279 94.6174 27.1671C94.4482 26.7034 94.3461 26.2396 94.314 25.7759C94.282 25.3121 94.2645 24.6617 94.2645 23.8275V12.0354H90.5428V24.0229C90.5428 24.9621 90.572 25.7788 90.6303 26.4729C90.6886 27.1671 90.8374 27.8525 91.0707 28.5409C91.304 29.2292 91.6657 29.8242 92.147 30.3346C92.8645 31.1046 93.7074 31.6734 94.6728 32.0379C95.6382 32.4025 96.7757 32.5863 98.0824 32.5863C99.5203 32.5863 100.772 32.2859 101.842 31.685C102.912 31.0842 103.714 30.2238 104.251 29.0979V32.0963H107.856V12.0354H104.251V23.2996H104.254ZM118.677 6.45294H115.113V12.0354H110.901V15.0513H115.113V27.1584C115.113 28.9725 115.603 30.2821 116.583 31.0871C117.563 31.8921 119.141 32.2917 121.322 32.2917C121.871 32.2917 122.416 32.2625 122.959 32.2042C123.501 32.1459 123.947 32.07 124.3 31.9796L124.222 28.6896C123.215 28.9259 122.346 29.0425 121.617 29.0425C120.888 29.0425 120.275 28.9871 119.864 28.8763C119.453 28.7654 119.152 28.5671 118.963 28.2784C118.773 27.9896 118.68 27.5784 118.68 27.0446V15.0571H124.379V12.0413H118.68V6.45294H118.677ZM134.73 12.9746C133.456 13.7329 132.63 14.6721 132.251 15.795V12.0354H128.646V32.0934H132.251V22.9059C132.251 20.8029 132.563 19.1638 133.19 17.9884C133.817 16.8129 134.666 16.0079 135.737 15.5704C136.807 15.1329 138.108 14.9142 139.633 14.9142C140.246 14.9142 140.666 14.9346 140.887 14.9725L140.966 11.5454C140.103 11.5454 139.554 11.5571 139.321 11.5834C137.53 11.7525 136.002 12.2163 134.727 12.9746H134.73ZM170.287 18.5979C170.588 19.785 170.737 21.0217 170.737 22.2992C170.737 22.6784 170.731 22.9584 170.716 23.1421H155.497C155.535 25.35 156.025 26.9921 156.967 28.0684C157.906 29.1446 159.318 29.6842 161.199 29.6842C162.897 29.6842 164.215 29.3167 165.157 28.5788C166.099 27.8409 166.691 26.715 166.939 25.1984L170.424 25.4725C169.981 27.8088 168.978 29.5792 167.417 30.7809C165.857 31.9825 163.798 32.5834 161.237 32.5834C158.154 32.5834 155.754 31.6034 154.027 29.6463C152.394 27.8175 151.577 25.2771 151.577 22.025C151.577 20.5229 151.79 19.1346 152.213 17.8629C152.636 16.5884 153.269 15.4888 154.103 14.5613C154.978 13.5696 156.016 12.8171 157.218 12.3096C158.419 11.7992 159.744 11.5454 161.193 11.5454C162.812 11.5454 164.32 11.8896 165.717 12.575C167.114 13.2604 168.217 14.2434 169.027 15.5238C169.564 16.3871 169.981 17.4109 170.282 18.5979H170.287ZM167.015 20.2225C167.003 19.6479 166.898 19.0238 166.703 18.3529C166.507 17.6821 166.254 17.1163 165.939 16.6584C165.428 15.9 164.792 15.3488 164.028 15.0017C163.264 14.6546 162.334 14.4825 161.237 14.4825C160.14 14.4825 159.181 14.675 158.358 15.06C157.536 15.445 156.92 15.9788 156.518 16.6554C156.177 17.2038 155.934 17.7929 155.783 18.4171C155.634 19.0442 155.549 19.645 155.538 20.2196H167.018L167.015 20.2225ZM190.672 15.6113C190.444 14.9113 190.094 14.3075 189.625 13.8C188.893 13.03 188.044 12.4613 187.079 12.0967C186.113 11.7321 184.97 11.5484 183.652 11.5484C180.583 11.5484 178.518 12.7354 177.462 15.1125V12.0384H173.857V32.0963H177.462V21.0275C177.462 18.5075 178.005 16.7984 179.087 15.9059C180.172 15.0104 181.371 14.5642 182.692 14.5642C183.436 14.5642 184.089 14.6342 184.652 14.7713C185.212 14.9084 185.749 15.2263 186.259 15.7221C186.638 16.0867 186.915 16.5067 187.09 16.9763C187.265 17.4459 187.37 17.9184 187.402 18.3967C187.434 18.8721 187.452 19.5371 187.452 20.3859V32.0992H191.194V20.1904C191.194 19.2367 191.165 18.4113 191.107 17.7113C191.048 17.0113 190.902 16.3142 190.675 15.6142L190.672 15.6113ZM207.338 15.0513V12.0354H201.639V6.45294H198.074V12.0354H193.863V15.0513H198.074V27.1584C198.074 28.9725 198.564 30.2821 199.544 31.0871C200.524 31.8921 202.102 32.2917 204.284 32.2917C204.832 32.2917 205.378 32.2625 205.92 32.2042C206.463 32.1459 206.909 32.07 207.262 31.9796L207.183 28.6896C206.177 28.9259 205.308 29.0425 204.579 29.0425C203.849 29.0425 203.237 28.9871 202.826 28.8763C202.414 28.7654 202.114 28.5671 201.924 28.2784C201.735 27.9896 201.642 27.5784 201.642 27.0446V15.0571H207.341L207.338 15.0513ZM144.557 32.1225H148.162V12.0646H144.557V32.1225ZM146.359 3.41669C144.904 3.41669 143.725 4.59502 143.725 6.05044C143.725 7.50585 144.904 8.68419 146.359 8.68419C147.814 8.68419 148.993 7.50585 148.993 6.05044C148.993 4.59502 147.814 3.41669 146.359 3.41669Z" fill="#1A1414"></path>
@@ -469,36 +586,56 @@
         let currentDocument = null;
         let convertedPDF = null;
         
-        // Update status message
-        function updateStatus(message, type) {
+        // Update status with animated elements
+        function updateStatus(message, type = 'info') {
             const statusEl = document.getElementById('status');
             if (statusEl) {
-                statusEl.textContent = message;
+                // Add loading spinner for info and warning states
+                let displayMessage = message;
+                if (type === 'info' || type === 'warning') {
+                    displayMessage = `<span class="loading-spinner"></span>${message}<span class="processing-dots"></span>`;
+                } else if (type === 'success') {
+                    displayMessage = `✅ ${message}`;
+                } else if (type === 'error') {
+                    displayMessage = `❌ ${message}`;
+                }
+                
+                statusEl.innerHTML = displayMessage;
                 statusEl.className = 'status ' + type;
                 statusEl.style.display = 'block';
             }
         }
         
-        // Show/hide progress bar
+        // Show progress with animation
         function showProgress(show) {
             const progressEl = document.getElementById('progress');
-            if (progressEl) {
-                progressEl.style.display = show ? 'block' : 'none';
-
-                if (show) {
-                    // Simulate progress
-                    let progress = 0;
-                    const interval = setInterval(function() {
-                        progress += 10;
-                        const progressBar = document.getElementById('progressBar');
-                        if (progressBar) {
-                            progressBar.style.width = progress + '%';
-                        }
-
-                        if (progress >= 100) {
-                            clearInterval(interval);
-                        }
-                    }, 200);
+            const progressBarEl = document.getElementById('progressBar');
+            
+            if (show) {
+                progressEl.style.display = 'block';
+                // Animate progress bar
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += Math.random() * 15;
+                    if (progress > 90) progress = 90; // Don't complete until done
+                    progressBarEl.style.width = progress + '%';
+                }, 500);
+                
+                // Store interval for cleanup
+                window.progressInterval = interval;
+            } else {
+                progressEl.style.display = 'none';
+                // Complete the progress bar
+                if (progressBarEl) {
+                    progressBarEl.style.width = '100%';
+                    setTimeout(() => {
+                        progressBarEl.style.width = '0%';
+                    }, 300);
+                }
+                // Clear interval
+                if (window.progressInterval) {
+                    clearInterval(window.progressInterval);
+                    window.progressInterval = null;
                 }
             }
         }
@@ -922,7 +1059,7 @@
             }
         }
         
-        // Get the actual Word document as DOCX file
+        // Get the actual Word document as DOCX file - Production Grade Implementation
         async function getActualWordDocument() {
             try {
                 updateStatus('Getting actual Word document as DOCX...', 'info');
@@ -933,197 +1070,317 @@
                 
                 console.log('🔍 Attempting to get actual Word document...');
                 
-                // Try to get the document as compressed file (DOCX)
-                console.log('🔄 Trying getFileAsync with different options...');
+                // Use the production-grade implementation
+                const docxBytes = await getCurrentDocxReliable();
+                console.log('✅ Got actual DOCX data, size:', docxBytes.length, 'bytes');
+                
+                // Convert Uint8Array to ArrayBuffer for compatibility
+                const docxData = docxBytes.buffer.slice(docxBytes.byteOffset, docxBytes.byteOffset + docxBytes.byteLength);
+                
+                // Download the DOCX file
+                const blob = new Blob([docxData], { 
+                    type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' 
+                });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'actual-word-document.docx';
+                a.style.display = 'none';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                updateStatus('✅ Actual Word document downloaded as DOCX!', 'success');
+                
+                // Store for potential use with SDK
+                window.actualDocxData = docxData;
+                
+                // Now load the actual DOCX into the viewer
+                console.log('🔄 Loading actual DOCX into Nutrient Web SDK viewer...');
+                updateStatus('🔄 Loading your actual Word document into the viewer...', 'info');
                 
                 try {
-                    const docxData = await new Promise((resolve, reject) => {
-                        Office.context.document.getFileAsync(Office.FileType.Compressed, {
-                            sliceSize: 1024 * 1024, // 1MB slices
-                            maxSliceCount: 5
-                        }, (result) => {
-                            if (result.status === Office.AsyncResultStatus.Succeeded) {
-                                const file = result.value;
-                                console.log('✅ getFileAsync succeeded! Slices:', file.sliceCount);
-                                
-                                // Get all slices
-                                const allSlices = [];
-                                let currentSlice = 0;
-                                
-                                function getSlice() {
-                                    if (currentSlice >= file.sliceCount) {
-                                        // All slices collected
-                                        file.closeAsync(() => {
-                                            const totalSize = allSlices.reduce((sum, slice) => sum + slice.length, 0);
-                                            const combined = new Uint8Array(totalSize);
-                                            let offset = 0;
-                                            for (const slice of allSlices) {
-                                                combined.set(slice, offset);
-                                                offset += slice.length;
-                                            }
-                                            resolve(combined.buffer);
-                                        });
-                                        return;
-                                    }
-                                    
-                                    file.getSliceAsync(currentSlice, (slice) => {
-                                        if (slice.status === Office.AsyncResultStatus.Succeeded) {
-                                            const base64Data = slice.value.data;
-                                            const byteArray = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
-                                            allSlices.push(byteArray);
-                                            currentSlice++;
-                                            getSlice();
-                                        } else {
-                                            reject(new Error(`Slice ${currentSlice} failed: ${slice.status}`));
-                                        }
-                                    });
-                                }
-                                
-                                getSlice();
-                            } else {
-                                reject(new Error(`getFileAsync failed: ${result.status}`));
-                            }
-                        });
+                    // Show the PDF viewer section
+                    document.getElementById('pdfViewerSection').style.display = 'block';
+                    document.getElementById('downloadPdfBtn').style.display = 'none';
+                    
+                    // Wait for the section to be visible
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                    
+                    // Debug: Check container state
+                    const viewerContainer = document.getElementById('pdfViewer');
+                    console.log('🔍 Viewer container state:', {
+                        id: viewerContainer.id,
+                        dimensions: `${viewerContainer.offsetWidth}x${viewerContainer.offsetHeight}`,
+                        visible: viewerContainer.style.display !== 'none',
+                        parentVisible: viewerContainer.parentElement.style.display !== 'none'
                     });
                     
-                    console.log('✅ Got actual DOCX data, size:', docxData.byteLength, 'bytes');
+                    // Simple approach: just use the clean div
+                    viewerContainer.innerHTML = '';
+                    viewerContainer.id = 'pdfViewer';
                     
-                    // Download the DOCX file
-                    const blob = new Blob([docxData], { 
-                        type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' 
+                    // Load the actual DOCX into the viewer
+                    console.log('📄 Loading DOCX data into viewer, size:', docxData.byteLength, 'bytes');
+                    const viewer = await NutrientViewer.load({
+                        container: '#pdfViewer',
+                        baseUrl: 'http://localhost:3000/assets/',
+                        document: docxData
                     });
-                    const url = URL.createObjectURL(blob);
                     
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'actual-word-document.docx';
-                    a.style.display = 'none';
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
+                    // Store the viewer instance
+                    window.currentNutrientViewer = viewer;
                     
-                    updateStatus('✅ Actual Word document downloaded as DOCX!', 'success');
+                    console.log('✅ Actual Word document loaded successfully in viewer!');
+                    updateStatus('✅ Your actual Word document is now displayed in the viewer!', 'success');
                     
-                    // Store for potential use with SDK
-                    window.actualDocxData = docxData;
-                    
-                    // Now load the actual DOCX into the viewer
-                    console.log('🔄 Loading actual DOCX into Nutrient Web SDK viewer...');
-                    updateStatus('🔄 Loading your actual Word document into the viewer...', 'info');
+                    // Automatically convert to PDF after loading
+                    console.log('🔄 Automatically converting to PDF...');
+                    updateStatus('🔄 Automatically converting your document to PDF...', 'info');
                     
                     try {
-                        // Show the PDF viewer section
-                        document.getElementById('pdfViewerSection').style.display = 'block';
-                        document.getElementById('downloadPdfBtn').style.display = 'none';
+                        const pdfArrayBuffer = await viewer.exportPDF();
+                        console.log('✅ PDF conversion completed, size:', pdfArrayBuffer.byteLength, 'bytes');
                         
-                        // Wait for the section to be visible
-                        await new Promise(resolve => setTimeout(resolve, 200));
+                        // Store the converted PDF
+                        window.convertedPDF = pdfArrayBuffer;
                         
-                        // Debug: Check container state
-                        const viewerContainer = document.getElementById('pdfViewer');
-                        console.log('🔍 Viewer container state:', {
-                            id: viewerContainer.id,
-                            dimensions: `${viewerContainer.offsetWidth}x${viewerContainer.offsetHeight}`,
-                            visible: viewerContainer.style.display !== 'none',
-                            parentVisible: viewerContainer.parentElement.style.display !== 'none'
-                        });
+                        // Show download button
+                        document.getElementById('downloadPdfBtn').style.display = 'block';
                         
-                        // Simple approach: just use the clean div
-                        viewerContainer.innerHTML = '';
-                        viewerContainer.id = 'pdfViewer';
+                        updateStatus('✅ Document converted to PDF successfully! Click "💾 Download PDF" to save.', 'success');
                         
-                        // Load the actual DOCX into the viewer
-                        console.log('📄 Loading DOCX data into viewer, size:', docxData.byteLength, 'bytes');
-                        const viewer = await NutrientViewer.load({
-                            container: '#pdfViewer',
-                            baseUrl: 'http://localhost:3000/assets/',
-                            document: docxData
-                        });
-                        
-                        // Store the viewer instance
-                        window.currentNutrientViewer = viewer;
-                        
-                        console.log('✅ Actual Word document loaded successfully in viewer!');
-                        updateStatus('✅ Your actual Word document is now displayed in the viewer!', 'success');
-                        
-                        // Automatically convert to PDF after loading
-                        console.log('🔄 Automatically converting to PDF...');
-                        updateStatus('🔄 Automatically converting your document to PDF...', 'info');
-                        
-                        try {
-                            const pdfArrayBuffer = await viewer.exportPDF();
-                            console.log('✅ PDF conversion completed, size:', pdfArrayBuffer.byteLength, 'bytes');
-                            
-                            // Store the converted PDF
-                            window.convertedPDF = pdfArrayBuffer;
-                            
-                            // Show download button
-                            document.getElementById('downloadPdfBtn').style.display = 'block';
-                            
-                            updateStatus('✅ Document converted to PDF successfully! Click "💾 Download PDF" to save.', 'success');
-                            
-                        } catch (pdfError) {
-                            console.error('❌ PDF conversion failed:', pdfError);
-                            updateStatus('⚠️ Document loaded in viewer but PDF conversion failed: ' + pdfError.message, 'warning');
-                        }
-                        
-                        // Add a button to convert this DOCX to PDF
-                        const convertButton = document.createElement('button');
-                        convertButton.className = 'btn';
-                        convertButton.style.marginTop = '10px';
-                        convertButton.onclick = () => convertActualDocxToPDF();
-                        convertButton.textContent = '🔄 Convert This DOCX to PDF';
-                        
-                        document.querySelector('.pdf-actions').appendChild(convertButton);
-                        
-                    } catch (viewerError) {
-                        console.error('❌ Failed to load DOCX in viewer:', viewerError);
-                        updateStatus('❌ Failed to load document in viewer: ' + viewerError.message, 'error');
-                        
-                        // Show detailed error information
-                        const errorDiv = document.createElement('div');
-                        errorDiv.style.cssText = 'background: #ffebee; border: 1px solid #f44336; border-radius: 4px; padding: 15px; margin: 15px 0; color: #c62828;';
-                        errorDiv.innerHTML = `
-                            <h4>❌ Viewer Loading Failed</h4>
-                            <p><strong>Error:</strong> ${viewerError.message}</p>
-                            <p><strong>Type:</strong> ${viewerError.constructor.name}</p>
-                            <details style="margin-top: 10px;">
-                                <summary>Full Error Details</summary>
-                                <pre style="background: #f5f5f5; padding: 10px; border-radius: 4px; overflow-x: auto;">${viewerError.stack || 'No stack trace available'}</pre>
-                            </details>
-                        `;
-                        
-                        document.getElementById('status').appendChild(errorDiv);
+                    } catch (pdfError) {
+                        console.error('❌ PDF conversion failed:', pdfError);
+                        updateStatus('⚠️ Document loaded in viewer but PDF conversion failed: ' + pdfError.message, 'warning');
                     }
                     
-                    return docxData;
+                    // Add a button to convert this DOCX to PDF
+                    const convertButton = document.createElement('button');
+                    convertButton.className = 'btn';
+                    convertButton.style.marginTop = '10px';
+                    convertButton.onclick = () => convertActualDocxToPDF();
+                    convertButton.textContent = '🔄 Convert This DOCX to PDF';
                     
-                } catch (getFileError) {
-                    console.warn('⚠️ getFileAsync failed:', getFileError);
+                    document.querySelector('.pdf-actions').appendChild(convertButton);
                     
-                    // If getFileAsync fails, show clear error - no fallbacks
-                    console.log('❌ Cannot get actual DOCX file');
-                    updateStatus('❌ Cannot retrieve actual DOCX file: ' + getFileError.message, 'error');
+                } catch (viewerError) {
+                    console.error('❌ Failed to load DOCX in viewer:', viewerError);
+                    updateStatus('❌ Failed to load document in viewer: ' + viewerError.message, 'error');
                     
-                    // Show what we can access for debugging
-                    const infoDiv = document.createElement('div');
-                    infoDiv.style.cssText = 'background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 20px; margin: 15px 0; color: #856404;';
-                    infoDiv.innerHTML = `
-                        <h4>⚠️ DOCX Access Failed</h4>
-                        <p><strong>Error:</strong> ${getFileError.message}</p>
-                        <p><strong>Document URL:</strong> ${Office.context.document.url || 'Not available'}</p>
-                        <p><strong>Document Title:</strong> ${Office.context.document.title || 'Untitled'}</p>
-                        <p><strong>Note:</strong> The "Convert to PDF" button requires actual DOCX data. Try saving your document or ensuring it's not in Protected View.</p>
+                    // Show detailed error information
+                    const errorDiv = document.createElement('div');
+                    errorDiv.style.cssText = 'background: #ffebee; border: 1px solid #f44336; border-radius: 4px; padding: 15px; margin: 15px 0; color: #c62828;';
+                    errorDiv.innerHTML = `
+                        <h4>❌ Viewer Loading Failed</h4>
+                        <p><strong>Error:</strong> ${viewerError.message}</p>
+                        <p><strong>Type:</strong> ${viewerError.constructor.name}</p>
+                        <details style="margin-top: 10px;">
+                            <summary>Full Error Details</summary>
+                            <pre style="background: #f5f5f5; padding: 10px; border-radius: 4px; overflow-x: auto;">${viewerError.stack || 'No stack trace available'}</pre>
+                        </details>
                     `;
                     
-                    document.getElementById('status').appendChild(infoDiv);
+                    document.getElementById('status').appendChild(errorDiv);
                 }
+                
+                return docxData;
                 
             } catch (error) {
                 console.error('❌ Failed to get actual Word document:', error);
                 updateStatus('❌ Failed to get actual Word document: ' + error.message, 'error');
+                
+                // Show detailed error information
+                const errorDiv = document.createElement('div');
+                errorDiv.style.cssText = 'background: #ffebee; border: 1px solid #f44336; border-radius: 4px; padding: 15px; margin: 15px 0; color: #c62828;';
+                errorDiv.innerHTML = `
+                    <h4>❌ DOCX Retrieval Failed</h4>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <p><strong>Type:</strong> ${error.constructor.name}</p>
+                    <details style="margin-top: 10px;">
+                        <summary>Full Error Details</summary>
+                        <pre style="background: #f5f5f5; padding: 10px; border-radius: 4px; overflow-x: auto;">${error.stack || 'No stack trace available'}</pre>
+                    </details>
+                `;
+                
+                document.getElementById('status').appendChild(errorDiv);
+                throw error;
             }
+        }
+        
+        // Production-grade DOCX retrieval with both Office.js and Graph fallback
+        async function getCurrentDocxReliable(options = {}) {
+            const {
+                maxRetries = 2,
+                sliceSize = 4 * 1024 * 1024, // 4 MB
+                timeoutMs = 30_000,          // 30 seconds
+                allowGraphFallback = true
+            } = options;
+
+            console.log('🚀 Starting production-grade DOCX retrieval...');
+
+            // 1) Try Office getFileAsync (desktop + online)
+            try {
+                return await getDocxViaGetFileAsync({ maxRetries, sliceSize, timeoutMs });
+            } catch (e1) {
+                console.warn('[getFileAsync] failed:', e1?.message || e1);
+                // 2) If the doc lives in SharePoint/OneDrive, fall back to Graph
+                if (!allowGraphFallback) throw e1;
+
+                try {
+                    const url = await getDocumentUrl();
+                    if (!url) throw new Error('No document URL available for Graph fallback');
+                    if (!isCloudUrl(url)) throw e1; // local doc → Graph won't help
+
+                    console.log('🔄 Trying Microsoft Graph fallback for cloud document...');
+                    return await getDocxViaGraph(url, { timeoutMs });
+                } catch (e2) {
+                    console.warn('[Graph fallback] failed:', e2?.message || e2);
+                    // Preserve the original getFileAsync error context
+                    const err = new Error(`Failed to get current Word document (getFileAsync + Graph). Root: ${e1?.message || e1}`);
+                    err.cause = { getFileAsync: e1, graph: e2 };
+                    throw err;
+                }
+            }
+        }
+
+        // Path A: Office.getFileAsync
+        async function getDocxViaGetFileAsync({ maxRetries, sliceSize, timeoutMs }) {
+            // Save first (reduces "internal error/5001" and timeouts)
+            await trySave();
+
+            // Serialize calls: don't run two exports at once
+            await gateGetFileAsync();
+
+            let attempt = 0;
+            while (true) {
+                try {
+                    return await withTimeout(_getDocxOnce(sliceSize), timeoutMs, 'getFileAsync timeout');
+                } catch (e) {
+                    if (attempt++ >= maxRetries) throw e;
+                    console.log(`🔄 Retry attempt ${attempt} after failure:`, e.message);
+                    await delay(600 * attempt); // simple backoff
+                }
+            }
+        }
+
+        function _getDocxOnce(sliceSize) {
+            return new Promise((resolve, reject) => {
+                Office.context.document.getFileAsync(
+                    Office.FileType.Compressed,
+                    { sliceSize },
+                    (res) => {
+                        if (res.status !== Office.AsyncResultStatus.Succeeded) {
+                            return reject(new Error(`${res.status} - ${res.error?.message || 'getFileAsync failed'}`));
+                        }
+                        const file = res.value; // Office.File
+                        const { sliceCount } = file;
+                        console.log(`📊 File has ${sliceCount} slices`);
+                        const slices = new Array(sliceCount);
+                        let i = 0;
+
+                        const failAndClose = (err) => file.closeAsync(() => reject(err instanceof Error ? err : new Error(String(err))));
+
+                        const next = () => {
+                            console.log(`🔄 Getting slice ${i + 1} of ${sliceCount}`);
+                            file.getSliceAsync(i, (r) => {
+                                if (r.status !== Office.AsyncResultStatus.Succeeded) {
+                                    return failAndClose(new Error(`${r.status} - ${r.error?.message || 'getSliceAsync failed'}`));
+                                }
+                                slices[i] = r.value.data; // base64 string
+                                i++;
+                                if (i < sliceCount) return next();
+
+                                file.closeAsync(() => {
+                                    try {
+                                        const base64 = slices.join('');
+                                        console.log('✅ All slices collected, converting to Uint8Array...');
+                                        resolve(base64ToUint8(base64));
+                                    } catch (e) {
+                                        reject(e);
+                                    }
+                                });
+                            });
+                        };
+                        next();
+                    }
+                );
+            });
+        }
+
+        // Path B: Microsoft Graph fallback
+        async function getDocxViaGraph(documentUrl, { timeoutMs }) {
+            // Requires SSO configured for your add-in
+            const token = await OfficeRuntime.auth.getAccessToken({ allowSignInPrompt: true });
+
+            // SharePoint/OneDrive "shares" API accepts a base64url-encoded URL
+            const shareId = 'u!' + toBase64Url(documentUrl);
+
+            const res = await withTimeout(fetch(
+                `https://graph.microsoft.com/v1.0/shares/${shareId}/driveItem/content`,
+                { headers: { Authorization: `Bearer ${token}` } }
+            ), timeoutMs, 'Graph download timeout');
+
+            if (!res.ok) throw new Error(`Graph download failed ${res.status} ${res.statusText}`);
+            const ab = await res.arrayBuffer();
+            return new Uint8Array(ab);
+        }
+
+        // Helper functions
+        async function trySave() {
+            console.log('💾 Attempting to save document first...');
+            await new Promise((resolve) => {
+                Office.context.document.saveAsync(() => resolve()); // don't hard-fail; saving helps host state
+            });
+        }
+
+        let _gating = Promise.resolve();
+        function gateGetFileAsync() {
+            const prev = _gating;
+            let release;
+            _gating = new Promise(r => (release = r));
+            return prev.finally(() => release());
+        }
+
+        function base64ToUint8(b64) {
+            const bin = atob(b64);
+            const out = new Uint8Array(bin.length);
+            for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+            return out;
+        }
+
+        function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+        async function withTimeout(promise, ms, label = 'timeout') {
+            let t;
+            const timer = new Promise((_, rej) => t = setTimeout(() => rej(new Error(`${label} after ${ms} ms`)), ms));
+            try {
+                return await Promise.race([promise, timer]);
+            } finally {
+                clearTimeout(t);
+            }
+        }
+
+        async function getDocumentUrl() {
+            return new Promise((resolve) => {
+                Office.context.document.getFilePropertiesAsync((r) => {
+                    if (r.status === Office.AsyncResultStatus.Succeeded) {
+                        resolve(r.value?.url || Office.context.document.url || '');
+                    } else {
+                        resolve(Office.context.document.url || '');
+                    }
+                });
+            });
+        }
+
+        function isCloudUrl(u = '') {
+            return /sharepoint\.com|\.sharepoint\.|d\.docs\.live\.net/i.test(u);
+        }
+
+        function toBase64Url(str) {
+            return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
         }
         
         // Get document content from Word
@@ -1316,7 +1573,6 @@
                 0x78, 0x72, 0x65, 0x66, 0x0A,
                 0x30, 0x20, 0x37, 0x0A,  // 7 objects
                 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x20, 0x36, 0x35, 0x35, 0x33, 0x35, 0x20, 0x66, 0x0A,
-                0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x20, 0x30, 0x30, 0x30, 0x30, 0x30, 0x20, 0x6E, 0x0A,
                 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x20, 0x30, 0x30, 0x30, 0x30, 0x30, 0x20, 0x6E, 0x0A,
                 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x20, 0x30, 0x30, 0x30, 0x30, 0x30, 0x20, 0x6E, 0x0A,
                 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x20, 0x30, 0x30, 0x30, 0x30, 0x30, 0x20, 0x6E, 0x0A,
