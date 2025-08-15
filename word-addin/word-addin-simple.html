@@ -1010,15 +1010,16 @@
                     throw new Error('Office.js context not available. Please ensure you are in a Word document.');
                 }
                 
-                console.log('🔄 Office.js status check passed, getting current Word document...');
-                updateStatus('🔄 Getting your current Word document and opening in viewer...', 'info');
+                console.log('🔄 Office.js status check passed, starting conversion workflow...');
+                updateStatus('🔄 Getting your current Word document and converting to PDF...', 'info');
                 
-                // Get the actual Word document as DOCX
+                // This function does the complete workflow: get DOCX, load in viewer, convert to PDF
                 const docxData = await getActualWordDocument();
                 
                 if (docxData && docxData.byteLength > 0) {
-                    console.log('✅ Got current Word document, size:', docxData.byteLength, 'bytes');
-                    updateStatus('Current Word document loaded in viewer! It will automatically convert to PDF.', 'success');
+                    console.log('✅ Complete workflow completed successfully!');
+                    console.log('✅ Final DOCX data size:', docxData.byteLength, 'bytes');
+                    updateStatus('✅ Document converted to PDF successfully! Check the viewer and download button.', 'success');
                     showProgress(false);
                 } else {
                     throw new Error('Failed to get current Word document - no data received');
