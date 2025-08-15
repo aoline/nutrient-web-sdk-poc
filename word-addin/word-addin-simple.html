@@ -410,6 +410,13 @@
         <div class="header">
             <h1>Document Converter</h1>
             <p>Convert Word documents to PDF locally</p>
+            <ul class="feature-list">
+                <li><span class="icon">✅</span>100% local processing</li>
+                <li><span class="icon">✅</span>No internet required</li>
+                <li><span class="icon">✅</span>Document privacy guaranteed</li>
+                <li><span class="icon">✅</span>Fast conversion speed</li>
+                <li><span class="icon">✅</span>High-quality PDF output</li>
+            </ul>
         </div>
         
         <div class="mode-indicator">
@@ -422,9 +429,13 @@
             <p>Convert the currently open Word document to PDF format.</p>
             
                                 <div class="btn-group">
-                        <button id="convertBtn" class="btn" onclick="convertDocument()">
-                            🔄 Convert to PDF
-                        </button>
+                <button id="convertBtn" class="btn" onclick="convertDocument()">
+                    🔄 Convert Current Document to PDF
+                </button>
+                
+                <button id="getDocxBtn" class="btn btn-secondary" onclick="getActualWordDocument()">
+                    📄 Get Actual DOCX
+                </button>
                         
                         <button id="testPdfBtn" class="btn btn-secondary" onclick="testPDFViewer()">
                             🧪 Test Sample.pdf
@@ -462,19 +473,7 @@
                     <button class="btn btn-secondary" onclick="downloadPDF()" id="downloadPdfBtn" style="display: none;">
                         💾 Download PDF
                     </button>
-                </div>
-            </div>
-            
-            <div class="features">
-                <h3>Offline Features</h3>
-                <ul class="feature-list">
-                    <li><span class="icon">✅</span>100% local processing</li>
-                    <li><span class="icon">✅</span>No internet required</li>
-                    <li><span class="icon">✅</span>Document privacy guaranteed</li>
-                    <li><span class="icon">✅</span>Fast conversion speed</li>
-                    <li><span class="icon">✅</span>High-quality PDF output</li>
-                </ul>
-            </div>
+                </div>            
     </div>
 
     <script>
@@ -856,24 +855,20 @@
                 updateStatus('Converting document to PDF...', 'info');
                 showProgress(true);
                 
-                // Check if we already have actual DOCX data from "Get Actual DOCX"
-                if (window.actualDocxData && window.actualDocxData.byteLength > 0) {
-                    console.log('🎯 Using actual DOCX data for conversion!');
-                    updateStatus('🎯 Using your actual Word document for conversion...', 'info');
-                    
-                    // Use the actual DOCX data we already retrieved
-                    const docxData = window.actualDocxData;
-                    console.log('✅ Using retrieved DOCX, size:', docxData.byteLength, 'bytes');
-                    
-                    // Convert the actual DOCX to PDF using the SDK
-                    await convertActualDocxToPDF();
-                    return;
-                }
+                // Automatically get the current Word document and open it in viewer
+                console.log('🔄 Getting current Word document and opening in viewer...');
+                updateStatus('🔄 Getting your current Word document and opening in viewer...', 'info');
                 
-                // No actual DOCX data available - fail clearly
-                console.log('❌ No actual DOCX data available for conversion');
-                updateStatus('❌ No actual DOCX available. Please click "📄 Get Actual DOCX" first to retrieve your Word document.', 'error');
-                showProgress(false);
+                // Get the actual Word document as DOCX
+                const docxData = await getActualWordDocument();
+                
+                if (docxData && docxData.byteLength > 0) {
+                    console.log('✅ Got current Word document, size:', docxData.byteLength, 'bytes');
+                    updateStatus('✅ Current Word document loaded in viewer! It will automatically convert to PDF.', 'success');
+                    showProgress(false);
+                } else {
+                    throw new Error('Failed to get current Word document');
+                }
                 
             } catch (error) {
                 console.error('Conversion failed:', error);
@@ -1062,6 +1057,27 @@
                         
                         console.log('✅ Actual Word document loaded successfully in viewer!');
                         updateStatus('✅ Your actual Word document is now displayed in the viewer!', 'success');
+                        
+                        // Automatically convert to PDF after loading
+                        console.log('🔄 Automatically converting to PDF...');
+                        updateStatus('🔄 Automatically converting your document to PDF...', 'info');
+                        
+                        try {
+                            const pdfArrayBuffer = await viewer.exportPDF();
+                            console.log('✅ PDF conversion completed, size:', pdfArrayBuffer.byteLength, 'bytes');
+                            
+                            // Store the converted PDF
+                            window.convertedPDF = pdfArrayBuffer;
+                            
+                            // Show download button
+                            document.getElementById('downloadPdfBtn').style.display = 'block';
+                            
+                            updateStatus('✅ Document converted to PDF successfully! Click "💾 Download PDF" to save.', 'success');
+                            
+                        } catch (pdfError) {
+                            console.error('❌ PDF conversion failed:', pdfError);
+                            updateStatus('⚠️ Document loaded in viewer but PDF conversion failed: ' + pdfError.message, 'warning');
+                        }
                         
                         // Add a button to convert this DOCX to PDF
                         const convertButton = document.createElement('button');
