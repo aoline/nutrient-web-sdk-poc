@@ -994,8 +994,16 @@
                 updateStatus('Converting document to PDF...', 'info');
                 showProgress(true);
                 
-                // Automatically get the current Word document and open it in viewer
-                console.log('🔄 Getting current Word document and opening in viewer...');
+                // Check Office.js readiness first
+                if (typeof Office === 'undefined') {
+                    throw new Error('Office.js is not loaded. Please run this in Word.');
+                }
+                
+                if (!Office.context || !Office.context.document) {
+                    throw new Error('Office.js context not available. Please ensure you are in a Word document.');
+                }
+                
+                console.log('🔄 Office.js status check passed, getting current Word document...');
                 updateStatus('🔄 Getting your current Word document and opening in viewer...', 'info');
                 
                 // Get the actual Word document as DOCX
@@ -1006,13 +1014,30 @@
                     updateStatus('Current Word document loaded in viewer! It will automatically convert to PDF.', 'success');
                     showProgress(false);
                 } else {
-                    throw new Error('Failed to get current Word document');
+                    throw new Error('Failed to get current Word document - no data received');
                 }
                 
             } catch (error) {
-                console.error('Conversion failed:', error);
-                updateStatus('Conversion failed: ' + error.message, 'error');
+                console.error('❌ Conversion failed:', error);
+                console.error('❌ Error stack:', error.stack);
+                updateStatus('❌ Conversion failed: ' + error.message, 'error');
                 showProgress(false);
+                
+                // Show detailed error in status
+                const statusEl = document.getElementById('status');
+                if (statusEl) {
+                    statusEl.innerHTML = `
+                        <div style="text-align: left; color: #d32f2f;">
+                            <strong>❌ Conversion Failed</strong><br>
+                            <strong>Error:</strong> ${error.message}<br>
+                            <strong>Type:</strong> ${error.constructor.name}<br>
+                            <details style="margin-top: 10px;">
+                                <summary>Full Error Details</summary>
+                                <pre style="background: #ffebee; padding: 10px; border-radius: 4px; overflow-x: auto; font-size: 11px;">${error.stack || 'No stack trace available'}</pre>
+                            </details>
+                        </div>
+                    `;
+                }
             }
         }
         
@@ -1071,18 +1096,23 @@
                 }
                 
                 console.log('🔍 Attempting to get actual Word document...');
+                console.log('🔍 Office.js version:', Office.version);
+                console.log('🔍 Document context available:', !!Office.context.document);
                 
                 // Use the production-grade implementation
                 let docxBytes;
                 try {
+                    console.log('🔄 Trying production-grade method (getFileAsync)...');
                     docxBytes = await getCurrentDocxReliable();
                     console.log('✅ Got actual DOCX data via production-grade method, size:', docxBytes.length, 'bytes');
                 } catch (productionError) {
                     console.warn('⚠️ Production-grade method failed, trying fallback:', productionError.message);
+                    console.warn('⚠️ Production error details:', productionError);
                     updateStatus('Advanced method failed, trying fallback approach...', 'warning');
                     
                     // Try fallback approach
                     try {
+                        console.log('🔄 Trying fallback method (getSelectedDataAsync)...');
                         const fallbackData = await getDocumentContentFallback();
                         console.log('✅ Got document data via fallback, size:', fallbackData.byteLength, 'bytes');
                         
@@ -1091,7 +1121,9 @@
                         updateStatus('Using fallback method - some formatting may be lost', 'warning');
                     } catch (fallbackError) {
                         console.error('❌ All methods failed:', fallbackError);
-                        throw new Error(`All DOCX retrieval methods failed: ${productionError.message}, ${fallbackError.message}`);
+                        console.error('❌ Production error:', productionError);
+                        console.error('❌ Fallback error:', fallbackError);
+                        throw new Error(`All DOCX retrieval methods failed. Production: ${productionError.message}, Fallback: ${fallbackError.message}`);
                     }
                 }
                 
