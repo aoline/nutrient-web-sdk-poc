@@ -66,8 +66,7 @@
             z-index: 1;
         }
         
-        .nutrient-logo:hover {
-        }
+
         
 
         
@@ -538,6 +537,10 @@
                         <button id="testFullProcessBtn" class="btn btn-secondary" onclick="testFullProcess()">
                             🔄 Test Full 3-Step Process
                         </button>
+                        
+                        <button id="testDebugBtn" class="btn btn-secondary" onclick="testButtonClick()">
+                            🧪 Test JavaScript
+                        </button>
                     </div>
             
             <div id="status" class="status info">
@@ -564,6 +567,24 @@
     <script>
         let currentDocument = null;
         let convertedPDF = null;
+        
+        // Debug function to test if JavaScript is working
+        function testButtonClick() {
+            console.log('🎯 Button clicked! JavaScript is working.');
+            alert('Button clicked! JavaScript is working.');
+        }
+        
+        // Debug: Log when script loads
+        console.log('🚀 Script section loaded');
+        console.log('🔍 Available functions:', {
+            convertDocument: typeof convertDocument,
+            getActualWordDocument: typeof getActualWordDocument,
+            testPDFViewer: typeof testPDFViewer,
+            testNutrientSDKOnly: typeof testNutrientSDKOnly,
+            testDocumentContent: typeof testDocumentContent,
+            testFullProcess: typeof testFullProcess,
+            testButtonClick: typeof testButtonClick
+        });
         
         // Update status with animated elements
         function updateStatus(message, type = 'info') {
@@ -1690,35 +1711,7 @@
             }
         }
         
-        // Clean up existing Nutrient Web SDK viewer instance
-        async function cleanupExistingViewer() {
-            try {
-                if (window.currentNutrientViewer) {
-                    console.log('🧹 Cleaning up existing Nutrient Web SDK viewer...');
-                    
-                    // Try to unload the viewer
-                    if (typeof window.currentNutrientViewer.unload === 'function') {
-                        await window.currentNutrientViewer.unload();
-                        console.log('✅ Viewer unloaded successfully');
-                    } else if (typeof window.currentNutrientViewer.destroy === 'function') {
-                        await window.currentNutrientViewer.destroy();
-                        console.log('✅ Viewer destroyed successfully');
-                    }
-                    
-                    window.currentNutrientViewer = null;
-                }
-                
-                // Clear the container
-                const viewerContainer = document.getElementById('pdfViewer');
-                viewerContainer.innerHTML = '';
-                
-            } catch (error) {
-                console.warn('⚠️ Error during viewer cleanup:', error);
-                // Continue anyway - clear the container
-                const viewerContainer = document.getElementById('pdfViewer');
-                viewerContainer.innerHTML = '';
-            }
-        }
+
         
         // Simple fallback: get document content when all else fails
         async function getDocumentContentFallback() {
@@ -1749,7 +1742,15 @@
             return encoder.encode(docContent).buffer;
         }
         
-                // Functions moved to top of script section
+        // Helper function to encode text for PDF
+        function encodeTextForPDF(text) {
+            const encoder = new TextEncoder();
+            return Array.from(encoder.encode(text));
+        }
+        
+
+        
+        // Functions moved to top of script section
     </script>
 </body>
 </html>
