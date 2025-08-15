@@ -551,16 +551,15 @@
         
                     <!-- PDF Viewer Section -->
             <div class="pdf-viewer-section" id="pdfViewerSection" style="display: none;">
-                <h3>📄 PDF Preview</h3>
-                                    <div class="pdf-container">
-                        <div id="pdfViewer"></div>
-                    </div>
+                <div class="pdf-container">
+                    <div id="pdfViewer"></div>
+                </div>
                 <div class="pdf-actions">
                     <button class="btn btn-secondary" onclick="downloadPDF()" id="downloadPdfBtn" style="display: none;">
                         💾 Download PDF
                     </button>
                 </div>            
-    </div>
+            </div>
 
     <script>
         let currentDocument = null;
@@ -715,28 +714,12 @@
                 
                 // Force Nutrient Web SDK loading (no fallback for testing)
                 console.log('🔄 Attempting to load in Nutrient Web SDK...');
-                const viewerContainer = document.getElementById('pdfViewer');
                 
-                // Clean up any existing viewer instance
-                await cleanupExistingViewer();
-                
-                // Wait for DOM to update
-                await new Promise(resolve => setTimeout(resolve, 200));
-                
-                console.log('Container dimensions:', viewerContainer.offsetWidth, 'x', viewerContainer.offsetHeight);
-                
-                // Try to load PDF using Nutrient Web SDK directly
-                const viewer = await NutrientViewer.load({
-                    container: '#pdfViewer',
-                    baseUrl: 'http://localhost:3000/assets/',
-                    document: pdfData
-                });
-                
-                // Store the viewer instance for cleanup
-                window.currentNutrientViewer = viewer;
+                // Use our helper function to load the PDF
+                const viewer = await switchViewerDocument(pdfData, 'application/pdf', 'sample.pdf');
                 
                 console.log('✅ Sample.pdf loaded successfully in Nutrient Web SDK!');
-                updateStatus('✅ Sample.pdf loaded in Nutrient Web SDK!', 'success');
+                updateStatus('✅ Sample.pdf loaded using Nutrient Web SDK Viwer!', 'success');
                 return viewer;
                 
             } catch (error) {
@@ -1269,6 +1252,37 @@
 
 
 
+        // Download PDF function
+        function downloadPDF() {
+            try {
+                if (!window.convertedPDF) {
+                    updateStatus('❌ No PDF available for download', 'error');
+                    return;
+                }
+                
+                console.log('💾 Downloading PDF...');
+                updateStatus('💾 Downloading PDF...', 'info');
+                
+                const blob = new Blob([window.convertedPDF], { type: 'application/pdf' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'converted-document.pdf';
+                a.style.display = 'none';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                updateStatus('✅ PDF downloaded successfully!', 'success');
+                
+            } catch (error) {
+                console.error('❌ PDF download failed:', error);
+                updateStatus('❌ PDF download failed: ' + error.message, 'error');
+            }
+        }
+        
         // Helper function to switch viewer documents properly
         async function switchViewerDocument(documentData, documentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', documentName = 'document.docx') {
             try {
@@ -1306,6 +1320,8 @@
                 throw error;
             }
         }
+        
+
         
         // Helper functions
         async function trySaveWithWordAPI() {
@@ -1662,30 +1678,7 @@
             }
         }
         
-        // Download the converted PDF
-        function downloadPDF() {
-            if (!convertedPDF) {
-                updateStatus('❌ No PDF available to download', 'error');
-                return;
-            }
 
-            try {
-                const blob = new Blob([convertedPDF], { type: 'application/pdf' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'converted-document.pdf';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-
-                updateStatus('✅ PDF downloaded successfully!', 'success');
-            } catch (error) {
-                console.error('Download failed:', error);
-                updateStatus('❌ Download failed: ' + error.message, 'error');
-            }
-        }
         
         // Clean up blob URLs when needed
         function cleanupBlobUrls() {
