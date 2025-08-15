@@ -728,7 +728,7 @@
                 });
         }
         
-        // Test PDF viewer with Sample.pdf
+        // Test PDF viewer with sample.pdf
         async function testPDFViewer() {
             try {
                 console.log('🧪 Testing PDF viewer with sample.pdf...');
@@ -740,24 +740,42 @@
                 // Wait a moment for the section to be visible
                 await new Promise(resolve => setTimeout(resolve, 100));
                 
-                // Load sample.pdf from the server
-                const response = await fetch('http://localhost:3000/sample.pdf');
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch sample.pdf: ${response.status} ${response.statusText}`);
+                // Try the direct URL approach first (simplest and most reliable)
+                console.log('🔄 Attempting to load sample.pdf directly with URL...');
+                
+                try {
+                    const viewer = await NutrientViewer.load({
+                        container: '#pdfViewer',
+                        baseUrl: 'http://localhost:3000/assets/',
+                        document: 'http://localhost:3000/sample.pdf'
+                    });
+                    
+                    // Store the viewer instance
+                    window.currentNutrientViewer = viewer;
+                    
+                    console.log('✅ sample.pdf loaded successfully with direct URL approach!');
+                    updateStatus('sample.pdf loaded using Nutrient Web SDK Viewer!', 'success');
+                    return viewer;
+                    
+                } catch (directUrlError) {
+                    console.warn('⚠️ Direct URL approach failed, trying ArrayBuffer approach:', directUrlError.message);
+                    
+                    // Fallback: Load sample.pdf as ArrayBuffer and use our helper function
+                    const response = await fetch('http://localhost:3000/sample.pdf');
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch sample.pdf: ${response.status} ${response.statusText}`);
+                    }
+                    
+                    const pdfData = await response.arrayBuffer();
+                    console.log('✅ sample.pdf loaded as ArrayBuffer, size:', pdfData.byteLength, 'bytes');
+                    
+                    // Use our helper function to load the PDF
+                    const viewer = await switchViewerDocument(pdfData, 'application/pdf', 'sample.pdf');
+                    
+                    console.log('✅ sample.pdf loaded successfully with ArrayBuffer approach!');
+                    updateStatus('sample.pdf loaded using Nutrient Web SDK Viewer!', 'success');
+                    return viewer;
                 }
-                
-                const pdfData = await response.arrayBuffer();
-                console.log('✅ sample.pdf loaded, size:', pdfData.byteLength, 'bytes');
-                
-                // Force Nutrient Web SDK loading (no fallback for testing)
-                console.log('🔄 Attempting to load in Nutrient Web SDK...');
-                
-                // Use our helper function to load the PDF
-                const viewer = await switchViewerDocument(pdfData, 'application/pdf', 'sample.pdf');
-                
-                console.log('✅ sample.pdf loaded successfully in Nutrient Web SDK!');
-                updateStatus('sample.pdf loaded using Nutrient Web SDK Viwer!', 'success');
-                return viewer;
                 
             } catch (error) {
                 console.error('❌ sample.pdf test failed:', error);
