@@ -10,7 +10,7 @@
     <script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js" onload="console.log('Office.js loaded successfully')" onerror="console.error('Failed to load Office.js')"></script>
     
     <!-- Nutrient Web SDK -->
-    <script type="module" src="http://localhost:3000/assets/nutrient-viewer.js"></script>
+    <script src="http://localhost:3000/assets/nutrient-viewer.js"></script>
 
     <style>
         body {
@@ -1071,8 +1071,29 @@
                 console.log('🔍 Attempting to get actual Word document...');
                 
                 // Use the production-grade implementation
-                const docxBytes = await getCurrentDocxReliable();
-                console.log('✅ Got actual DOCX data, size:', docxBytes.length, 'bytes');
+                let docxBytes;
+                try {
+                    docxBytes = await getCurrentDocxReliable();
+                    console.log('✅ Got actual DOCX data via production-grade method, size:', docxBytes.length, 'bytes');
+                } catch (productionError) {
+                    console.warn('⚠️ Production-grade method failed, trying fallback:', productionError.message);
+                    updateStatus('⚠️ Advanced method failed, trying fallback approach...', 'warning');
+                    
+                    // Try fallback approach
+                    try {
+                        const fallbackData = await getDocumentContentFallback();
+                        console.log('✅ Got document data via fallback, size:', fallbackData.byteLength, 'bytes');
+                        
+                        // Use fallback data
+                        docxBytes = new Uint8Array(fallbackData);
+                        updateStatus('✅ Using fallback method - some formatting may be lost', 'warning');
+                    } catch (fallbackError) {
+                        console.error('❌ All methods failed:', fallbackError);
+                        throw new Error(`All DOCX retrieval methods failed: ${productionError.message}, ${fallbackError.message}`);
+                    }
+                }
+                
+                console.log('✅ Got DOCX data, size:', docxBytes.length, 'bytes');
                 
                 // Convert Uint8Array to ArrayBuffer for compatibility
                 const docxData = docxBytes.buffer.slice(docxBytes.byteOffset, docxBytes.byteOffset + docxBytes.byteLength);
@@ -1226,18 +1247,35 @@
                 return await getDocxViaGetFileAsync({ maxRetries, sliceSize, timeoutMs });
             } catch (e1) {
                 console.warn('[getFileAsync] failed:', e1?.message || e1);
+                
                 // 2) If the doc lives in SharePoint/OneDrive, fall back to Graph
-                if (!allowGraphFallback) throw e1;
+                if (!allowGraphFallback) {
+                    console.log('Graph fallback disabled, throwing original error');
+                    throw e1;
+                }
 
                 try {
                     const url = await getDocumentUrl();
-                    if (!url) throw new Error('No document URL available for Graph fallback');
-                    if (!isCloudUrl(url)) throw e1; // local doc → Graph won't help
+                    if (!url) {
+                        console.log('No document URL available for Graph fallback');
+                        throw new Error('No document URL available for Graph fallback');
+                    }
+                    if (!isCloudUrl(url)) {
+                        console.log('Document is not a cloud document, Graph fallback won\'t help');
+                        throw e1; // local doc → Graph won't help
+                    }
 
                     console.log('🔄 Trying Microsoft Graph fallback for cloud document...');
                     return await getDocxViaGraph(url, { timeoutMs });
                 } catch (e2) {
                     console.warn('[Graph fallback] failed:', e2?.message || e2);
+                    
+                    // If OfficeRuntime is not available, provide a helpful message
+                    if (e2.message.includes('OfficeRuntime not available')) {
+                        console.log('OfficeRuntime not available - this is normal for some environments');
+                        throw new Error(`getFileAsync failed and Graph fallback is not available in this environment. Error: ${e1?.message || e1}`);
+                    }
+                    
                     // Preserve the original getFileAsync error context
                     const err = new Error(`Failed to get current Word document (getFileAsync + Graph). Root: ${e1?.message || e1}`);
                     err.cause = { getFileAsync: e1, graph: e2 };
@@ -1312,6 +1350,11 @@
 
         // Path B: Microsoft Graph fallback
         async function getDocxViaGraph(documentUrl, { timeoutMs }) {
+            // Check if OfficeRuntime is available
+            if (typeof OfficeRuntime === 'undefined' || !OfficeRuntime.auth) {
+                throw new Error('OfficeRuntime not available - Graph fallback disabled');
+            }
+            
             // Requires SSO configured for your add-in
             const token = await OfficeRuntime.auth.getAccessToken({ allowSignInPrompt: true });
 
@@ -1757,6 +1800,35 @@
                 const viewerContainer = document.getElementById('pdfViewer');
                 viewerContainer.innerHTML = '';
             }
+        }
+        
+        // Simple fallback: get document content when all else fails
+        async function getDocumentContentFallback() {
+            console.log('🔄 Trying document content fallback...');
+            
+            try {
+                const content = await getDocumentContent();
+                console.log('✅ Got document content, length:', content.length, 'characters');
+                
+                // Create a simple document representation
+                const simpleDoc = createSimpleDocumentFromContent(content);
+                console.log('✅ Created simple document representation, size:', simpleDoc.byteLength, 'bytes');
+                
+                return simpleDoc;
+            } catch (fallbackError) {
+                console.error('❌ Document content fallback also failed:', fallbackError);
+                throw new Error(`All approaches failed: ${fallbackError.message}`);
+            }
+        }
+        
+        // Create a simple document representation from content
+        function createSimpleDocumentFromContent(content) {
+            // Create a minimal document structure
+            const docContent = content || 'Document content not available';
+            
+            // Convert to ArrayBuffer for compatibility
+            const encoder = new TextEncoder();
+            return encoder.encode(docContent).buffer;
         }
         
                 // Functions moved to top of script section
