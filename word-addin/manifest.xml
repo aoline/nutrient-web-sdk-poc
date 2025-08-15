@@ -67,6 +67,14 @@
                 </DesktopFormFactor>
             </Host>
         </Hosts>
+        
+        <!-- Microsoft Graph Authentication for SharePoint/OneDrive fallback -->
+        <WebApplicationInfo>
+            <Id>YOUR-AAD-APP-ID</Id>
+            <Resource>api://YOUR-AAD-APP-ID</Resource>
+            <Scopes>Files.Read</Scopes>
+        </WebApplicationInfo>
+        
         <Resources>
             <bt:Images>
                 <bt:Image id="Icon.16x16" DefaultValue="https://localhost:3000/assets/icon-16.png" />
