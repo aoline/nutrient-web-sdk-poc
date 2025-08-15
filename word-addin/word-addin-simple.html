@@ -740,20 +740,20 @@
                 // Wait a moment for the section to be visible
                 await new Promise(resolve => setTimeout(resolve, 100));
                 
-                // Load Sample.pdf from the server
-                const response = await fetch('http://localhost:3000/Sample.pdf');
+                // Load sample.pdf from the server
+                const response = await fetch('http://localhost:3000/sample.pdf');
                 if (!response.ok) {
-                    throw new Error(`Failed to fetch Sample.pdf: ${response.status} ${response.statusText}`);
+                    throw new Error(`Failed to fetch sample.pdf: ${response.status} ${response.statusText}`);
                 }
                 
                 const pdfData = await response.arrayBuffer();
-                console.log('✅ Sample.pdf loaded, size:', pdfData.byteLength, 'bytes');
+                console.log('✅ sample.pdf loaded, size:', pdfData.byteLength, 'bytes');
                 
                 // Force Nutrient Web SDK loading (no fallback for testing)
                 console.log('🔄 Attempting to load in Nutrient Web SDK...');
                 
                 // Use our helper function to load the PDF
-                const viewer = await switchViewerDocument(pdfData, 'application/pdf', 'Sample.pdf');
+                const viewer = await switchViewerDocument(pdfData, 'application/pdf', 'sample.pdf');
                 
                 console.log('✅ Sample.pdf loaded successfully in Nutrient Web SDK!');
                 updateStatus('Sample.pdf loaded using Nutrient Web SDK Viwer!', 'success');
