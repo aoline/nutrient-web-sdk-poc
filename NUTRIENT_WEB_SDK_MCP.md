@@ -75,26 +75,35 @@ document: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.p
 
 ### 3. **Viewer Lifecycle Management (CRITICAL)**
 
-#### ✅ **CORRECT: Clean Viewer Switching Pattern**
+#### ✅ **CORRECT: Simple Viewer Management Pattern**
 ```javascript
 // ALWAYS use this pattern for switching documents:
-await viewer.unload();
-await viewer.load({ document: { type, data, name } });
+// 1. Clean up existing viewer (if any)
+// 2. Clear container
+// 3. Create new viewer
 
 // Example:
 if (window.currentNutrientViewer) {
-    await window.currentNutrientViewer.unload();
-    await window.currentNutrientViewer.load({
-        document: 'http://localhost:3000/sample.pdf'
-    });
-} else {
-    // Create new viewer only if none exists
-    window.currentNutrientViewer = await NutrientViewer.load({
-        container: '#viewer',
-        baseUrl: 'http://localhost:3000/assets/',
-        document: 'http://localhost:3000/sample.pdf'
-    });
+    // Try different cleanup methods
+    if (typeof window.currentNutrientViewer.unload === 'function') {
+        await window.currentNutrientViewer.unload();
+    } else if (typeof window.currentNutrientViewer.destroy === 'function') {
+        await window.currentNutrientViewer.destroy();
+    } else if (typeof window.currentNutrientViewer.close === 'function') {
+        await window.currentNutrientViewer.close();
+    }
+    window.currentNutrientViewer = null;
 }
+
+// Clear container to ensure clean state
+container.innerHTML = '';
+
+// Create new viewer
+window.currentNutrientViewer = await NutrientViewer.load({
+    container: '#viewer',
+    baseUrl: 'http://localhost:3000/assets/',
+    document: 'http://localhost:3000/sample.pdf'
+});
 ```
 
 #### ❌ **WRONG: Never Do This**

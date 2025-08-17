@@ -743,26 +743,32 @@
                 // Try the direct URL approach first (simplest and most reliable)
                 console.log('🔄 Attempting to load sample.pdf directly with URL...');
                 
-                // Clean approach: Use viewer.unload() then viewer.load() if we have an existing viewer
+                // Simple approach: Always create new viewer for new documents
                 if (window.currentNutrientViewer) {
-                    console.log('🔄 Using existing viewer - unloading and loading new document...');
+                    console.log('🔄 Cleaning up existing viewer...');
                     try {
-                        await window.currentNutrientViewer.unload();
-                        console.log('✅ Existing viewer unloaded');
-                        
-                        // Now load the PDF into the same viewer
-                        await window.currentNutrientViewer.load({
-                            document: 'http://localhost:3000/sample.pdf'
-                        });
-                        console.log('✅ sample.pdf loaded successfully using viewer.load()!');
-                        updateStatus('sample.pdf loaded using existing viewer!', 'success');
-                        return window.currentNutrientViewer;
-                        
-                    } catch (viewerError) {
-                        console.warn('⚠️ Viewer.load() failed, creating new viewer:', viewerError.message);
-                        window.currentNutrientViewer = null;
+                        // Try different cleanup methods
+                        if (typeof window.currentNutrientViewer.unload === 'function') {
+                            await window.currentNutrientViewer.unload();
+                            console.log('✅ Existing viewer unloaded');
+                        } else if (typeof window.currentNutrientViewer.destroy === 'function') {
+                            await window.currentNutrientViewer.destroy();
+                            console.log('✅ Existing viewer destroyed');
+                        } else if (typeof window.currentNutrientViewer.close === 'function') {
+                            await window.currentNutrientViewer.close();
+                            console.log('✅ Existing viewer closed');
+                        } else {
+                            console.log('⚠️ No cleanup method found, proceeding anyway');
+                        }
+                    } catch (cleanupError) {
+                        console.warn('⚠️ Viewer cleanup failed, proceeding anyway:', cleanupError.message);
                     }
+                    window.currentNutrientViewer = null;
                 }
+                
+                // Clear the container to ensure clean state
+                const container = document.getElementById('pdfViewer');
+                container.innerHTML = '';
                 
                 // If no existing viewer or viewer.load() failed, create new one
                 console.log('🔄 Creating new viewer for sample.pdf...');
@@ -1373,41 +1379,42 @@
             }
         }
         
-        // Clean approach: Use viewer.unload() then viewer.load()
+        // Simple approach: Always create new viewer for new documents
         async function switchViewerDocument(documentData, documentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', documentName = 'documentName') {
             try {
                 console.log(`📄 Loading ${documentType} into viewer, size:`, documentData.byteLength, 'bytes');
                 console.log('🔍 Document data type:', typeof documentData, 'constructor:', documentData.constructor.name);
                 
-                let viewer;
-                
-                // If we have an existing viewer, use the clean pattern
+                // Clean up existing viewer if any
                 if (window.currentNutrientViewer) {
-                    console.log('🔄 Using existing viewer - unloading and loading new document...');
+                    console.log('🔄 Cleaning up existing viewer...');
                     try {
-                        await window.currentNutrientViewer.unload();
-                        console.log('✅ Existing viewer unloaded');
-                        
-                        // Now load the new document into the same viewer
-                        await window.currentNutrientViewer.load({
-                            document: {
-                                type: documentType,
-                                data: documentData,
-                                name: documentName
-                            }
-                        });
-                        console.log('✅ Document loaded successfully using viewer.load()!');
-                        return window.currentNutrientViewer;
-                        
-                    } catch (viewerError) {
-                        console.warn('⚠️ Viewer.load() failed, creating new viewer:', viewerError.message);
-                        window.currentNutrientViewer = null;
+                        // Try different cleanup methods
+                        if (typeof window.currentNutrientViewer.unload === 'function') {
+                            await window.currentNutrientViewer.unload();
+                            console.log('✅ Existing viewer unloaded');
+                        } else if (typeof window.currentNutrientViewer.destroy === 'function') {
+                            await window.currentNutrientViewer.destroy();
+                            console.log('✅ Existing viewer destroyed');
+                        } else if (typeof window.currentNutrientViewer.close === 'function') {
+                            await window.currentNutrientViewer.close();
+                            console.log('✅ Existing viewer closed');
+                        } else {
+                            console.log('⚠️ No cleanup method found, proceeding anyway');
+                        }
+                    } catch (cleanupError) {
+                        console.warn('⚠️ Viewer cleanup failed, proceeding anyway:', cleanupError.message);
                     }
+                    window.currentNutrientViewer = null;
                 }
                 
-                // If no existing viewer or viewer.load() failed, create new one
+                // Clear the container to ensure clean state
+                const container = document.getElementById('pdfViewer');
+                container.innerHTML = '';
+                
+                // Create new viewer with the document
                 console.log('🔄 Creating new viewer with document...');
-                viewer = await NutrientViewer.load({
+                const viewer = await NutrientViewer.load({
                     container: '#pdfViewer',
                     baseUrl: 'http://localhost:3000/assets/',
                     document: {
@@ -1725,27 +1732,34 @@
                 try {
                     let viewer;
                     
-                    // Clean approach: Use viewer.unload() then viewer.load() if we have an existing viewer
+                    // Simple approach: Always create new viewer for new documents
                     if (window.currentNutrientViewer) {
-                        console.log('🔄 Using existing viewer - unloading and loading PDF...');
+                        console.log('🔄 Cleaning up existing viewer...');
                         try {
-                            await window.currentNutrientViewer.unload();
-                            console.log('✅ Existing viewer unloaded');
-                            
-                            // Now load the PDF into the same viewer
-                            await window.currentNutrientViewer.load({
-                                document: pdfData
-                            });
-                            console.log('✅ PDF loaded successfully using viewer.load()!');
-                            return window.currentNutrientViewer;
-                            
-                        } catch (viewerError) {
-                            console.warn('⚠️ Viewer.load() failed, creating new viewer:', viewerError.message);
-                            window.currentNutrientViewer = null;
+                            // Try different cleanup methods
+                            if (typeof window.currentNutrientViewer.unload === 'function') {
+                                await window.currentNutrientViewer.unload();
+                                console.log('✅ Existing viewer unloaded');
+                            } else if (typeof window.currentNutrientViewer.destroy === 'function') {
+                                await window.currentNutrientViewer.destroy();
+                                console.log('✅ Existing viewer destroyed');
+                            } else if (typeof window.currentNutrientViewer.close === 'function') {
+                                await window.currentNutrientViewer.close();
+                                console.log('✅ Existing viewer closed');
+                            } else {
+                                console.log('⚠️ No cleanup method found, proceeding anyway');
+                            }
+                        } catch (cleanupError) {
+                            console.warn('⚠️ Viewer cleanup failed, proceeding anyway:', cleanupError.message);
                         }
+                        window.currentNutrientViewer = null;
                     }
                     
-                    // If no existing viewer or viewer.load() failed, create new one
+                    // Clear the container to ensure clean state
+                    const container = document.getElementById('pdfViewer');
+                    container.innerHTML = '';
+                    
+                    // Create new viewer for PDF
                     console.log('🔄 Creating new viewer for PDF...');
                     viewer = await NutrientViewer.load({
                         container: '#pdfViewer',
@@ -1827,7 +1841,19 @@
         async function cleanupViewerAndBlobs() {
             try {
                 if (window.currentNutrientViewer) {
-                    await window.currentNutrientViewer.unload();
+                    // Try different cleanup methods
+                    if (typeof window.currentNutrientViewer.unload === 'function') {
+                        await window.currentNutrientViewer.unload();
+                        console.log('✅ Existing viewer unloaded');
+                    } else if (typeof window.currentNutrientViewer.destroy === 'function') {
+                        await window.currentNutrientViewer.destroy();
+                        console.log('✅ Existing viewer destroyed');
+                    } else if (typeof window.currentNutrientViewer.close === 'function') {
+                        await window.currentNutrientViewer.close();
+                        console.log('✅ Existing viewer closed');
+                    } else {
+                        console.log('⚠️ No cleanup method found, proceeding anyway');
+                    }
                     window.currentNutrientViewer = null;
                     console.log('🧹 Cleaned up viewer instance');
                 }
