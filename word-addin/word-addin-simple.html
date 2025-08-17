@@ -746,9 +746,19 @@
                 // Clean approach: Unload existing viewer if any, then load fresh
                 if (window.currentNutrientViewer) {
                     console.log('🔄 Unloading existing viewer...');
-                    await window.currentNutrientViewer.unload();
-                    console.log('✅ Existing viewer unloaded');
+                    try {
+                        await window.currentNutrientViewer.unload();
+                        console.log('✅ Existing viewer unloaded');
+                    } catch (unloadError) {
+                        console.warn('⚠️ Error unloading viewer:', unloadError.message);
+                    }
+                    window.currentNutrientViewer = null;
                 }
+                
+                // Ensure container is clean
+                const container = document.getElementById('pdfViewer');
+                container.innerHTML = '';
+                console.log('🧹 Container cleared, ready for new viewer');
                 
                 try {
                     const viewer = await NutrientViewer.load({
