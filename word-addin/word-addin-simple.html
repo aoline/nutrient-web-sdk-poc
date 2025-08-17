@@ -743,56 +743,41 @@
                 // Try the direct URL approach first (simplest and most reliable)
                 console.log('🔄 Attempting to load sample.pdf directly with URL...');
                 
-                // Clean approach: Unload existing viewer if any, then load fresh
+                // Clean approach: Use viewer.unload() then viewer.load() if we have an existing viewer
                 if (window.currentNutrientViewer) {
-                    console.log('🔄 Unloading existing viewer...');
+                    console.log('🔄 Using existing viewer - unloading and loading new document...');
                     try {
                         await window.currentNutrientViewer.unload();
                         console.log('✅ Existing viewer unloaded');
-                    } catch (unloadError) {
-                        console.warn('⚠️ Error unloading viewer:', unloadError.message);
+                        
+                        // Now load the PDF into the same viewer
+                        await window.currentNutrientViewer.load({
+                            document: 'http://localhost:3000/sample.pdf'
+                        });
+                        console.log('✅ sample.pdf loaded successfully using viewer.load()!');
+                        updateStatus('sample.pdf loaded using existing viewer!', 'success');
+                        return window.currentNutrientViewer;
+                        
+                    } catch (viewerError) {
+                        console.warn('⚠️ Viewer.load() failed, creating new viewer:', viewerError.message);
+                        window.currentNutrientViewer = null;
                     }
-                    window.currentNutrientViewer = null;
                 }
                 
-                // Ensure container is clean
-                const container = document.getElementById('pdfViewer');
-                container.innerHTML = '';
-                console.log('🧹 Container cleared, ready for new viewer');
+                // If no existing viewer or viewer.load() failed, create new one
+                console.log('🔄 Creating new viewer for sample.pdf...');
+                const viewer = await NutrientViewer.load({
+                    container: '#pdfViewer',
+                    baseUrl: 'http://localhost:3000/assets/',
+                    document: 'http://localhost:3000/sample.pdf'
+                });
                 
-                try {
-                    const viewer = await NutrientViewer.load({
-                        container: '#pdfViewer',
-                        baseUrl: 'http://localhost:3000/assets/',
-                        document: 'http://localhost:3000/sample.pdf'
-                    });
-                    
-                    // Store the viewer instance
-                    window.currentNutrientViewer = viewer;
-                    
-                    console.log('✅ sample.pdf loaded successfully with direct URL approach!');
-                    updateStatus('sample.pdf loaded using Nutrient Web SDK Viewer!', 'success');
-                    return viewer;
-                    
-                } catch (directUrlError) {
-                    console.warn('⚠️ Direct URL approach failed, trying ArrayBuffer approach:', directUrlError.message);
-                    
-                    // Fallback: Load sample.pdf as ArrayBuffer and use our helper function
-                    const response = await fetch('http://localhost:3000/sample.pdf');
-                    if (!response.ok) {
-                        throw new Error(`Failed to fetch sample.pdf: ${response.status} ${response.statusText}`);
-                    }
-                    
-                    const pdfData = await response.arrayBuffer();
-                    console.log('✅ sample.pdf loaded as ArrayBuffer, size:', pdfData.byteLength, 'bytes');
-                    
-                    // Use our helper function to load the PDF
-                    const viewer = await switchViewerDocument(pdfData, 'application/pdf', 'sample.pdf');
-                    
-                    console.log('✅ sample.pdf loaded successfully with ArrayBuffer approach!');
-                    updateStatus('sample.pdf loaded using Nutrient Web SDK Viewer!', 'success');
-                    return viewer;
-                }
+                // Store the viewer instance
+                window.currentNutrientViewer = viewer;
+                
+                console.log('✅ sample.pdf loaded successfully with new viewer!');
+                updateStatus('sample.pdf loaded using new viewer!', 'success');
+                return viewer;
                 
             } catch (error) {
                 console.error('❌ sample.pdf test failed:', error);
@@ -1396,14 +1381,31 @@
                 
                 let viewer;
                 
-                // If we have an existing viewer, unload it first
+                // If we have an existing viewer, use the clean pattern
                 if (window.currentNutrientViewer) {
-                    console.log('🔄 Unloading existing viewer...');
-                    await window.currentNutrientViewer.unload();
-                    console.log('✅ Existing viewer unloaded');
+                    console.log('🔄 Using existing viewer - unloading and loading new document...');
+                    try {
+                        await window.currentNutrientViewer.unload();
+                        console.log('✅ Existing viewer unloaded');
+                        
+                        // Now load the new document into the same viewer
+                        await window.currentNutrientViewer.load({
+                            document: {
+                                type: documentType,
+                                data: documentData,
+                                name: documentName
+                            }
+                        });
+                        console.log('✅ Document loaded successfully using viewer.load()!');
+                        return window.currentNutrientViewer;
+                        
+                    } catch (viewerError) {
+                        console.warn('⚠️ Viewer.load() failed, creating new viewer:', viewerError.message);
+                        window.currentNutrientViewer = null;
+                    }
                 }
                 
-                // Create new viewer with the document
+                // If no existing viewer or viewer.load() failed, create new one
                 console.log('🔄 Creating new viewer with document...');
                 viewer = await NutrientViewer.load({
                     container: '#pdfViewer',
@@ -1417,7 +1419,7 @@
                 
                 // Store the viewer instance
                 window.currentNutrientViewer = viewer;
-                console.log('✅ Document loaded successfully in viewer!');
+                console.log('✅ Document loaded successfully in new viewer!');
                 
                 return viewer;
                 
@@ -1721,7 +1723,31 @@
                 
                 // Try to load PDF using Nutrient Web SDK with error handling
                 try {
-                    const viewer = await NutrientViewer.load({
+                    let viewer;
+                    
+                    // If we have an existing viewer, use the clean pattern
+                    if (window.currentNutrientViewer) {
+                        console.log('🔄 Using existing viewer - unloading and loading PDF...');
+                        try {
+                            await window.currentNutrientViewer.unload();
+                            console.log('✅ Existing viewer unloaded');
+                            
+                            // Now load the PDF into the same viewer
+                            await window.currentNutrientViewer.load({
+                                document: pdfData
+                            });
+                            console.log('✅ PDF loaded successfully using viewer.load()!');
+                            return window.currentNutrientViewer;
+                            
+                        } catch (viewerError) {
+                            console.warn('⚠️ Viewer.load() failed, creating new viewer:', viewerError.message);
+                            window.currentNutrientViewer = null;
+                        }
+                    }
+                    
+                    // If no existing viewer or viewer.load() failed, create new one
+                    console.log('🔄 Creating new viewer for PDF...');
+                    viewer = await NutrientViewer.load({
                         container: '#pdfViewer',
                         baseUrl: 'http://localhost:3000/assets/',
                         document: pdfData
@@ -1730,7 +1756,7 @@
                     // Store the viewer instance for cleanup
                     window.currentNutrientViewer = viewer;
                     
-                    console.log('✅ PDF loaded successfully in viewer');
+                    console.log('✅ PDF loaded successfully in new viewer');
                     return viewer;
                     
                 } catch (viewerError) {

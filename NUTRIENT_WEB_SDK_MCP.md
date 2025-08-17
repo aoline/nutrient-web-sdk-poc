@@ -73,7 +73,44 @@ document: "data:text/plain;base64,VGhpcyBpcyBhIHRlc3Q="
 document: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
 ```
 
-### 3. **JavaScript Module Patterns**
+### 3. **Viewer Lifecycle Management (CRITICAL)**
+
+#### ✅ **CORRECT: Clean Viewer Switching Pattern**
+```javascript
+// ALWAYS use this pattern for switching documents:
+await viewer.unload();
+await viewer.load({ document: { type, data, name } });
+
+// Example:
+if (window.currentNutrientViewer) {
+    await window.currentNutrientViewer.unload();
+    await window.currentNutrientViewer.load({
+        document: 'http://localhost:3000/sample.pdf'
+    });
+} else {
+    // Create new viewer only if none exists
+    window.currentNutrientViewer = await NutrientViewer.load({
+        container: '#viewer',
+        baseUrl: 'http://localhost:3000/assets/',
+        document: 'http://localhost:3000/sample.pdf'
+    });
+}
+```
+
+#### ❌ **WRONG: Never Do This**
+```javascript
+// ❌ DON'T: Clear container manually
+container.innerHTML = '';
+
+// ❌ DON'T: Create new viewer every time
+const viewer = await NutrientViewer.load({...});
+
+// ❌ DON'T: Mix container clearing with viewer management
+container.innerHTML = '';
+viewer = await NutrientViewer.load({...});
+```
+
+### 4. **JavaScript Module Patterns**
 
 #### **Async Function Wrapper (Required)**
 ```javascript
