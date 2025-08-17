@@ -1374,7 +1374,7 @@
         }
         
         // Clean approach: Use viewer.unload() then viewer.load()
-        async function switchViewerDocument(documentData, documentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', documentName = 'document.docx') {
+        async function switchViewerDocument(documentData, documentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', documentName = 'documentName') {
             try {
                 console.log(`📄 Loading ${documentType} into viewer, size:`, documentData.byteLength, 'bytes');
                 console.log('🔍 Document data type:', typeof documentData, 'constructor:', documentData.constructor.name);
@@ -1725,7 +1725,7 @@
                 try {
                     let viewer;
                     
-                    // If we have an existing viewer, use the clean pattern
+                    // Clean approach: Use viewer.unload() then viewer.load() if we have an existing viewer
                     if (window.currentNutrientViewer) {
                         console.log('🔄 Using existing viewer - unloading and loading PDF...');
                         try {
